@@ -76,7 +76,7 @@ if (checkoutForm) {
 
         // 4. OPEN WHATSAPP IMMEDIATELY (Direct User Action - 100% Works)
         const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/send?phone=${SHOP_WHATSAPP_NUMBER}&text=${encodedMessage}`;
+        const whatsappUrl = `https://wa.me/919887385287&text=${encodedMessage}`;
         
         // Using window.location.href is the MOST bulletproof way for mobile/desktop
         // It opens in the same tab. If you want a new tab, window.open(whatsappUrl, '_blank') can be used, but location.href never gets blocked.
