@@ -8,7 +8,7 @@
  * on new registrations.
  * =====================================================
  */
-
+alert("Auth.js file shuru hui!");
 // Firebase Auth Imports
 import { auth, db } from './firebase.js';
 import { 
