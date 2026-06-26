@@ -3,21 +3,58 @@
  * Shree Panchmukhi Balaji Handloom - Product Page Logic
  * =====================================================
  * File: /js/product.js
- * Description: Controls single product view safely.
+ * Description: Isolated product logic. Does not rely on app.js
  * =====================================================
  */
 
-// Imports
+// Imports (app.js import HATA DIYA HAI)
 import { getProductById, getRelatedProducts } from './products.js';
 import { calculateDiscount, formatCurrency, showToast } from './utils.js';
-import { createProductCard } from './app.js';
+
+// ------------------------- //
+// Local Card Generator      //
+// ------------------------- //
+// (Copied from app.js to prevent cross-page crashing)
+const createProductCard = (product) => {
+    const discount = calculateDiscount(product.mrp, product.sellingPrice);
+    const isOutOfStock = product.stock <= 0;
+
+    return `
+        <div class="product-card tilt-element" data-id="${product.id}">
+            <div class="product-img-container">
+                <img src="${product.images[0]}" alt="${product.name}" loading="lazy">
+                ${discount > 0 ? `<span class="discount-badge">${discount}% OFF</span>` : ''}
+                <button class="product-wishlist" aria-label="Add to Wishlist">
+                    <i class="far fa-heart"></i>
+                </button>
+                <div class="product-actions-overlay">
+                    <a href="/product.html?id=${product.id}" class="btn btn-sm btn-primary">View Details</a>
+                </div>
+            </div>
+            <div class="product-info">
+                <span class="product-category">${product.category}</span>
+                <h3 class="product-name">${product.name}</h3>
+                <div class="product-rating">
+                    <i class="fas fa-star"></i>
+                    <span>4.5 (${Math.floor(Math.random() * 100) + 10})</span>
+                </div>
+                <div class="price-container">
+                    <span class="current-price">${formatCurrency(product.sellingPrice)}</span>
+                    ${discount > 0 ? `<span class="original-price">${formatCurrency(product.mrp)}</span>` : ''}
+                    <span class="stock-status ${isOutOfStock ? 'out-of-stock' : 'in-stock'}">
+                        ${isOutOfStock ? 'Out of Stock' : 'In Stock'}
+                    </span>
+                </div>
+            </div>
+        </div>
+    `;
+};
 
 // ------------------------- //
 // Initialize Safely         //
 // ------------------------- //
 document.addEventListener('DOMContentLoaded', async () => {
     
-    // 1. DOM Elements (Ab yeh safe hain kyunki DOM load ho chuka hai)
     const productContainer = document.getElementById('productContainer');
     const mainImageWrapper = document.getElementById('mainImageWrapper');
     const mainImage = document.getElementById('mainImage');
@@ -37,13 +74,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const shareBtn = document.getElementById('shareBtn');
     const relatedGrid = document.getElementById('relatedProductsGrid');
 
-    // 2. State Variables
     let currentProduct = null;
     let selectedSize = null;
     let selectedQty = 1;
     let currentImageIndex = 0;
 
-    // 3. Get Product ID from URL
     const params = new URLSearchParams(window.location.search);
     const productId = params.get('id');
 
@@ -59,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             productContainer.innerHTML = `
                 <div style="text-align: center; padding: 100px 20px;">
                     <h2>Product Not Found</h2>
-                    <p>The product you are looking for does not exist or has been removed.</p>
+                    <p>The product you are looking for does not exist.</p>
                     <a href="/index.html" class="btn btn-primary" style="margin-top: 20px;">Go Home</a>
                 </div>`;
             return;
@@ -75,9 +110,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         showToast('Failed to load product details.', 'error');
     }
 
-    // ------------------------- //
-    // 4. Render Product Details //
-    // ------------------------- //
     const renderProductDetails = (product) => {
         document.title = `${product.name} | Shree Panchmukhi Balaji Handloom`;
         const discount = calculateDiscount(product.mrp, product.sellingPrice);
@@ -154,20 +186,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    // ------------------------- //
-    // 5. Image Gallery & Zoom   //
-    // ------------------------- //
     const changeMainImage = (index) => {
         currentImageIndex = index;
         mainImage.style.opacity = '0';
         mainImage.style.transform = 'scale(1.1)';
-        
         setTimeout(() => {
             mainImage.src = currentProduct.images[index];
             mainImage.style.opacity = '1';
             mainImage.style.transform = 'scale(1)';
         }, 200);
-
         document.querySelectorAll('.thumbnail').forEach((t, i) => {
             t.classList.toggle('active', i === index);
         });
@@ -182,11 +209,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const height = rect.height;
             const xPercent = (x / width) * 100;
             const yPercent = (y / height) * 100;
-
             mainImage.style.transformOrigin = `${xPercent}% ${yPercent}%`;
             mainImage.style.transform = 'scale(2)';
         });
-
         mainImageWrapper.addEventListener('mouseleave', () => {
             mainImage.style.transformOrigin = 'center center';
             mainImage.style.transform = 'scale(1)';
@@ -195,20 +220,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    // ------------------------- //
-    // 6. Quantity & Add to Cart //
-    // ------------------------- //
     qtyMinus.addEventListener('click', () => {
-        if (selectedQty > 1) {
-            selectedQty--;
-            qtyValue.innerText = selectedQty;
-        }
+        if (selectedQty > 1) { selectedQty--; qtyValue.innerText = selectedQty; }
     });
 
     qtyPlus.addEventListener('click', () => {
         if (currentProduct && selectedQty < currentProduct.stock) {
-            selectedQty++;
-            qtyValue.innerText = selectedQty;
+            selectedQty++; qtyValue.innerText = selectedQty;
         } else {
             showToast('Cannot exceed available stock limit.', 'error');
         }
@@ -216,11 +234,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     addToCartBtn.addEventListener('click', () => {
         if (!currentProduct) return;
-
         if (currentProduct.sizes && currentProduct.sizes.length > 0 && !selectedSize) {
             return showToast('Please select a size.', 'error');
         }
-
         let cart = JSON.parse(localStorage.getItem('spbh_cart')) || [];
         const existingIndex = cart.findIndex(item => item.id === currentProduct.id && item.size === selectedSize);
 
@@ -228,75 +244,38 @@ document.addEventListener('DOMContentLoaded', async () => {
             cart[existingIndex].qty += selectedQty;
         } else {
             cart.push({
-                id: currentProduct.id,
-                name: currentProduct.name,
-                image: currentProduct.images[0],
-                mrp: currentProduct.mrp,
-                sellingPrice: currentProduct.sellingPrice,
-                category: currentProduct.category,
-                size: selectedSize || 'Free Size',
-                qty: selectedQty
+                id: currentProduct.id, name: currentProduct.name, image: currentProduct.images[0],
+                mrp: currentProduct.mrp, sellingPrice: currentProduct.sellingPrice, category: currentProduct.category,
+                size: selectedSize || 'Free Size', qty: selectedQty
             });
         }
-
         localStorage.setItem('spbh_cart', JSON.stringify(cart));
         showToast(`${currentProduct.name} added to cart!`, 'success');
-        
         addToCartBtn.innerText = 'Added!';
         setTimeout(() => { addToCartBtn.innerText = 'Add to Cart'; }, 1500);
     });
 
-    // ------------------------- //
-    // 7. Share Product          //
-    // ------------------------- //
     shareBtn.addEventListener('click', async () => {
-        const shareData = {
-            title: currentProduct.name,
-            text: `Check out this amazing product: ${currentProduct.name} for ${formatCurrency(currentProduct.sellingPrice)} at Shree Panchmukhi Balaji Handloom!`,
-            url: window.location.href
-        };
-
+        const shareData = { title: currentProduct.name, text: `Check out ${currentProduct.name} at Shree Panchmukhi Balaji Handloom!`, url: window.location.href };
         try {
-            if (navigator.share) {
-                await navigator.share(shareData);
-            } else {
-                await navigator.clipboard.writeText(window.location.href);
-                showToast('Product link copied to clipboard!', 'success');
-            }
-        } catch (error) {
-            console.error("Share failed:", error);
-            showToast('Could not share right now.', 'error');
-        }
+            if (navigator.share) { await navigator.share(shareData); }
+            else { await navigator.clipboard.writeText(window.location.href); showToast('Link copied!', 'success'); }
+        } catch (error) { showToast('Could not share.', 'error'); }
     });
 
-    // ------------------------- //
-    // 8. Related Products       //
-    // ------------------------- //
     const fetchAndRenderRelated = async (product) => {
         if (!relatedGrid) return;
-        
         relatedGrid.innerHTML = '<div class="skeleton skeleton-img" style="grid-column: 1/-1; height: 300px;"></div>';
-
         const related = await getRelatedProducts(product.id, product.category, 4);
-        
-        if (related.length === 0) {
-            relatedGrid.parentElement.style.display = 'none';
-            return;
-        }
-
+        if (related.length === 0) { relatedGrid.parentElement.style.display = 'none'; return; }
         relatedGrid.innerHTML = '';
-        related.forEach(p => {
-            relatedGrid.innerHTML += createProductCard(p);
-        });
+        related.forEach(p => { relatedGrid.innerHTML += createProductCard(p); });
 
-        // Re-init 3D tilt
         document.querySelectorAll('.tilt-element').forEach(el => {
             el.addEventListener('mousemove', (e) => {
                 const rect = el.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
+                const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+                const centerX = rect.width / 2; const centerY = rect.height / 2;
                 const rotateX = ((y - centerY) / centerY) * -5;
                 const rotateY = ((x - centerX) / centerX) * 5;
                 el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
@@ -306,5 +285,4 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
     };
-
 });
