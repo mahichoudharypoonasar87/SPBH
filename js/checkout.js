@@ -9,7 +9,7 @@ import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/fir
 import { formatCurrency, showToast } from './utils.js';
 
 // ⚠️ APNA NUMBER YAHAN DALEIN (Bina + ke)
-const SHOP_WHATSAPP_NUMBER = '919876543210'; 
+const SHOP_WHATSAPP_NUMBER = '919887385287'; 
 
 const checkoutForm = document.getElementById('checkoutForm');
 
@@ -99,7 +99,7 @@ if (checkoutForm) {
         // --- ANTI-POPUP BLOCK TECHNIQUE ---
         // We create a temporary hidden link and click it. This bypasses popup blockers.
         const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://api.whatsapp.com/send?phone=919887385287&text=${encodedMessage}`;
+        const whatsappUrl = `https://api.whatsapp.com/send?phone=${SHOP_WHATSAPP_NUMBER}&text=${encodedMessage}`;
         
         const a = document.createElement('a');
         a.href = whatsappUrl;
@@ -118,4 +118,4 @@ if (checkoutForm) {
             window.location.href = '/index.html';
         }, 3000);
     });
-}
+    }
