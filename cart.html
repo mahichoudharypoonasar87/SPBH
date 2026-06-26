@@ -125,7 +125,11 @@
                     </div>
                     <div class="form-group">
                         <label for="custAddress">Delivery Address *</label>
-                        <textarea id="custAddress" class="form-control" rows="3" placeholder="House No, Street, Landmark..." required style="resize: vertical;"></textarea>
+                        <textarea id="custAddress" class="form-control" rows="2" placeholder="House No, Street, Landmark..." required style="resize: vertical;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="custPincode">PIN Code *</label>
+                        <input type="text" id="custPincode" class="form-control" placeholder="6-digit PIN code" pattern="[0-9]{6}" maxlength="6" required>
                     </div>
 
                     <button type="submit" class="whatsapp-checkout-btn" id="checkoutBtn">
