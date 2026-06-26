@@ -2,35 +2,17 @@
  * =====================================================
  * Shree Panchmukhi Balaji Handloom - Checkout Logic
  * =====================================================
- * File: /js/checkout.js
- * Description: Handles the final checkout process. 
- * Validates cart & customer details, saves the order 
- * to Firestore (so it can be tracked), and then 
- * redirects to WhatsApp with a formatted message.
- * =====================================================
  */
 
-// Firebase Imports
 import { auth, db } from './firebase.js';
 import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
-
-// Utility Imports
 import { formatCurrency, showToast } from './utils.js';
 
-// ------------------------- //
-// 1. Configuration          //
-// ------------------------- //
-// REPLACE THIS WITH YOUR ACTUAL WHATSAPP BUSINESS NUMBER (With country code, no + or spaces)
+// ⚠️ IMPORTANT: REPLACE THIS WITH YOUR ACTUAL WHATSAPP NUMBER
 const SHOP_WHATSAPP_NUMBER = '919876543210'; 
 
-// ------------------------- //
-// 2. DOM Elements           //
-// ------------------------- //
 const checkoutForm = document.getElementById('checkoutForm');
 
-// ------------------------- //
-// 3. Form Submission Handler//
-// ------------------------- *
 if (checkoutForm) {
     checkoutForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -39,31 +21,34 @@ if (checkoutForm) {
         const customerName = document.getElementById('custName').value.trim();
         const customerMobile = document.getElementById('custMobile').value.trim();
         const customerAddress = document.getElementById('custAddress').value.trim();
+        const customerPincode = document.getElementById('custPincode').value.trim();
 
         // 2. Get Cart Items
         const cart = JSON.parse(localStorage.getItem('spbh_cart')) || [];
 
         // 3. Validations
-        if (!customerName || !customerMobile || !customerAddress) {
-            return showToast('Please fill in all customer details.', 'error');
+        if (!customerName || !customerMobile || !customerAddress || !customerPincode) {
+            return showToast('Please fill in all details.', 'error');
         }
 
         if (!/^[0-9]{10}$/.test(customerMobile)) {
             return showToast('Please enter a valid 10-digit mobile number.', 'error');
         }
 
+        if (!/^[0-9]{6}$/.test(customerPincode)) {
+            return showToast('Please enter a valid 6-digit PIN code.', 'error');
+        }
+
         if (cart.length === 0) {
             return showToast('Your cart is empty!', 'error');
         }
 
-        // Disable button to prevent double clicks
         const submitBtn = checkoutForm.querySelector('.whatsapp-checkout-btn');
         const originalBtnText = submitBtn.innerHTML;
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
         try {
-            // 4. Prepare Order Data for Firestore
             let grandTotal = 0;
             const itemsArray = cart.map(item => {
                 const itemTotal = item.sellingPrice * item.qty;
@@ -85,17 +70,18 @@ if (checkoutForm) {
                 customerName: customerName,
                 customerMobile: customerMobile,
                 customerAddress: customerAddress,
+                customerPincode: customerPincode,
                 items: itemsArray,
                 grandTotal: grandTotal,
-                status: 'Pending', // Initial status
+                status: 'Pending',
                 createdAt: serverTimestamp()
             };
 
-            // 5. Save Order to Firestore
+            // Save to Firestore
             const docRef = await addDoc(collection(db, "orders"), orderData);
             console.log("Order saved to Firestore with ID: ", docRef.id);
 
-            // 6. Format WhatsApp Message
+            // Format WhatsApp Message
             let itemStr = "";
             itemsArray.forEach((item, index) => {
                 itemStr += `\n${index + 1}. *${item.name}* (Size: ${item.size})\n   Qty: ${item.qty} | Price: ${formatCurrency(item.totalPrice)}\n`;
@@ -105,24 +91,24 @@ if (checkoutForm) {
                             `👤 *Customer Details:*\n` +
                             `Name: ${customerName}\n` +
                             `Mobile: ${customerMobile}\n` +
-                            `Address: ${customerAddress}\n\n` +
+                            `Address: ${customerAddress}\n` +
+                            `PIN Code: ${customerPincode}\n\n` +
                             `📦 *Order Items:*\n${itemStr}\n` +
                             `💰 *Grand Total: ${formatCurrency(grandTotal)}*\n` +
                             `📌 *Order ID: #${docRef.id.substring(0, 8).toUpperCase()}*\n\n` +
                             `Thank you!`;
 
-            // 7. Open WhatsApp
+            // Open WhatsApp
             const encodedMessage = encodeURIComponent(message);
             const whatsappUrl = `https://api.whatsapp.com/send?phone=$919887385287&text=${encodedMessage}`;
             
             window.open(whatsappUrl, '_blank');
 
-            // 8. Clear Local Cart
+            // Clear Local Cart
             localStorage.removeItem('spbh_cart');
             
             showToast('Order placed successfully! Track it in your profile.', 'success');
 
-            // 9. Redirect to Profile/Orders after a short delay
             setTimeout(() => {
                 window.location.href = '/profile.html';
             }, 2000);
