@@ -130,6 +130,12 @@
             alert('ERROR HUA: ' + event.reason.message);
         });
     </script>
-    <script type="module" src="/js/auth.js"></script>
+        <!-- Scripts -->
+    <script>
+        window.addEventListener('unhandledrejection', event => {
+            alert('ERROR: ' + event.reason.message);
+        });
+    </script>
+    <script type="module" src="/js/auth.js?v=2"></script>
 </body>
 </html>
