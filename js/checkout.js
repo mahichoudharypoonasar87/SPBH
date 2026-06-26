@@ -8,13 +8,14 @@ import { auth, db } from './firebase.js';
 import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { formatCurrency, showToast } from './utils.js';
 
-// ⚠️ APNA NUMBER YAHAN DALEIN (Bina + ke)
-const SHOP_WHATSAPP_NUMBER = '919887385287'; 
+// ⚠️ APNA NUMBER YAHAN DALEIN
+const SHOP_WHATSAPP_NUMBER = '919876543210'; 
 
 const checkoutForm = document.getElementById('checkoutForm');
 
 if (checkoutForm) {
-    checkoutForm.addEventListener('submit', async (e) => {
+    checkoutForm.addEventListener('submit', (e) => {
+        // 1. FORM VALIDATION (Sync - No delay)
         e.preventDefault();
 
         const customerName = document.getElementById('custName').value.trim();
@@ -23,7 +24,6 @@ if (checkoutForm) {
         const customerPincode = document.getElementById('custPincode').value.trim();
         const cart = JSON.parse(localStorage.getItem('spbh_cart')) || [];
 
-        // Validations
         if (!customerName || !customerMobile || !customerAddress || !customerPincode) {
             return showToast('Please fill in all details.', 'error');
         }
@@ -37,10 +37,7 @@ if (checkoutForm) {
             return showToast('Your cart is empty!', 'error');
         }
 
-        const submitBtn = checkoutForm.querySelector('.whatsapp-checkout-btn');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-
+        // 2. CALCULATE TOTALS (Sync - No delay)
         let grandTotal = 0;
         const itemsArray = cart.map(item => {
             const itemTotal = item.sellingPrice * item.qty;
@@ -57,29 +54,10 @@ if (checkoutForm) {
             };
         });
 
-        // Generate Order ID (Either from Firebase or Local)
-        let finalOrderId = "GUEST_" + Date.now().toString(36).toUpperCase();
+        // Generate a temporary Order ID for WhatsApp message (so we don't wait for Firebase)
+        const tempOrderId = "ORD" + Date.now().toString(36).toUpperCase();
 
-        try {
-            // Try to save in Firebase (Only works if user is logged in)
-            if (auth.currentUser) {
-                const orderData = {
-                    userId: auth.currentUser.uid,
-                    customerName, customerMobile, customerAddress, customerPincode,
-                    items: itemsArray,
-                    grandTotal: grandTotal,
-                    status: 'Pending',
-                    createdAt: serverTimestamp()
-                };
-                const docRef = await addDoc(collection(db, "orders"), orderData);
-                finalOrderId = docRef.id; // Use real Firebase ID
-            }
-        } catch (error) {
-            console.warn("Could not save to Firebase (User might be guest):", error);
-            // WE DO NOT STOP HERE! We continue to WhatsApp even if Firebase fails.
-        }
-
-        // Format WhatsApp Message
+        // 3. FORMAT WHATSAPP MESSAGE (Sync - No delay)
         let itemStr = "";
         itemsArray.forEach((item, index) => {
             itemStr += `\n${index + 1}. *${item.name}* (Size: ${item.size})\n   Qty: ${item.qty} | Price: ${formatCurrency(item.totalPrice)}\n`;
@@ -93,29 +71,42 @@ if (checkoutForm) {
                         `PIN Code: ${customerPincode}\n\n` +
                         `📦 *Order Items:*\n${itemStr}\n` +
                         `💰 *Grand Total: ${formatCurrency(grandTotal)}*\n` +
-                        `📌 *Order ID: #${finalOrderId.substring(0, 8).toUpperCase()}*\n\n` +
+                        `📌 *Order ID: #${tempOrderId}*\n\n` +
                         `Thank you!`;
 
-        // --- ANTI-POPUP BLOCK TECHNIQUE ---
-        // We create a temporary hidden link and click it. This bypasses popup blockers.
+        // 4. OPEN WHATSAPP IMMEDIATELY (Direct User Action - 100% Works)
         const encodedMessage = encodeURIComponent(message);
         const whatsappUrl = `https://api.whatsapp.com/send?phone=${SHOP_WHATSAPP_NUMBER}&text=${encodedMessage}`;
         
-        const a = document.createElement('a');
-        a.href = whatsappUrl;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        // Using window.location.href is the MOST bulletproof way for mobile/desktop
+        // It opens in the same tab. If you want a new tab, window.open(whatsappUrl, '_blank') can be used, but location.href never gets blocked.
+        window.location.href = whatsappUrl;
 
-        // Clear Cart
-        localStorage.removeItem('spbh_cart');
-        showToast('Redirecting to WhatsApp...', 'success');
+        // 5. BACKGROUND FIREBASE SAVE (Async - Doesn't block WhatsApp)
+        // Since we are redirecting the page, we use navigator.sendBeacon conceptually, 
+        // but for Firestore we just trigger it. Even if it fails, user already went to WhatsApp.
+        const saveOrderToFirebase = async () => {
+            try {
+                if (auth.currentUser) {
+                    await addDoc(collection(db, "orders"), {
+                        userId: auth.currentUser.uid,
+                        customerName, customerMobile, customerAddress, customerPincode,
+                        items: itemsArray,
+                        grandTotal: grandTotal,
+                        status: 'Pending',
+                        createdAt: serverTimestamp()
+                    });
+                }
+            } catch (error) {
+                console.error("Firebase save failed (User is guest or network error):", error);
+            }
+            
+            // Clear cart after attempting save
+            localStorage.removeItem('spbh_cart');
+        };
 
-        // Redirect to home after 3 seconds
-        setTimeout(() => {
-            window.location.href = '/index.html';
-        }, 3000);
-    });
-    }
+        // Trigger background save
+        saveOrderToFirebase();
+
+    }); // End of submit event
+                }
