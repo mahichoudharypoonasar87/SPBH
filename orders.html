@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Track your order status in real-time at Shree Panchmukhi Balaji Handloom.">
+    <title>Track Order | Shree Panchmukhi Balaji Handloom</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/assets/icons/favicon.png" type="image/png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <link rel="stylesheet" href="/css/animation.css">
+
+    <style>
+        /* Order Tracking Layout */
+        .page-top { padding: 120px 0 40px; background: var(--bg-secondary); text-align: center; }
+        .page-top h1 { font-family: var(--font-heading); font-size: 2.5rem; margin-bottom: 8px; }
+
+        .order-tracking-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            padding: 60px 0;
+            align-items: start;
+        }
+
+        /* Left: Order Summary */
+        .summary-card {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            position: sticky;
+            top: 100px;
+        }
+        .summary-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);
+        }
+        .summary-header h3 { font-family: var(--font-heading); font-size: 1.4rem; }
+        .summary-header span { font-size: 0.9rem; color: var(--text-muted); }
+        .summary-date { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px; display: block; }
+        
+        .address-box {
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .track-item {
+            display: flex; gap: 16px; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid var(--border-color);
+        }
+        .track-item:last-child { border-bottom: none; }
+        .track-item img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
+        .track-item-info { flex-grow: 1; }
+        .track-item-info h4 { font-size: 0.95rem; margin-bottom: 4px; }
+        .track-item-info p { font-size: 0.8rem; color: var(--text-muted); }
+        .track-item-price { font-weight: 600; color: var(--text-primary); }
+
+        .total-box {
+            margin-top: 24px; padding-top: 16px; border-top: 2px solid var(--text-primary);
+            display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 700;
+        }
+
+        /* Right: Timeline */
+        .timeline-card {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+        .timeline-card h2 { font-family: var(--font-heading); margin-bottom: 40px; font-size: 1.5rem; }
+
+        .timeline-container {
+            position: relative;
+            padding-left: 40px;
+        }
+        /* Vertical Line */
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+
+        .timeline-step {
+            position: relative;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        .timeline-step:last-child { margin-bottom: 0; }
+
+        .timeline-icon {
+            position: absolute;
+            left: -40px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            z-index: 2;
+            transition: all var(--transition-smooth);
+        }
+
+        .timeline-content h4 {
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+            transition: color var(--transition-smooth);
+        }
+        .timeline-content p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        /* Timeline States */
+        .timeline-step.completed .timeline-icon {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #000;
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.2);
+        }
+        .timeline-step.completed .timeline-content h4 { color: var(--text-primary); }
+        .timeline-step.completed .timeline-content p { opacity: 1; color: var(--text-secondary); }
+
+        .timeline-step.active .timeline-icon {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #000;
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.2);
+            animation: pulse 2s infinite;
+        }
+        .timeline-step.active .timeline-content h4 { color: var(--primary); font-weight: 700; }
+        .timeline-step.active .timeline-content p { opacity: 1; }
+
+        .timeline-step.cancelled .timeline-icon {
+            background: #FF3B30;
+            border-color: #FF3B30;
+            color: #fff;
+        }
+        .timeline-step.cancelled .timeline-content h4 { color: #FF3B30; }
+
+        /* Not Found State */
+        .not-found-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 100px 20px;
+            min-height: 50vh;
+        }
+        .not-found-state i { font-size: 4rem; color: var(--border-color); margin-bottom: 24px; }
+
+        @media (max-width: 768px) {
+            .order-tracking-layout { grid-template-columns: 1fr; }
+            .summary-card { position: static; order: 2; }
+            .timeline-card { order: 1; padding: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header scrolled" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/index.html" class="logo">Shree <span>Panchmukhi</span> Balaji</a>
+                <div class="nav-actions">
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode"><i class="fas fa-moon"></i></button>
+                    <a href="/profile.html" class="btn btn-sm btn-secondary">My Account</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="page-top">
+        <div class="container">
+            <h1>Track Your Order</h1>
+            <p>Real-time updates on your order status</p>
+        </div>
+    </div>
+
+    <main class="container">
+        
+        <!-- Not Found State -->
+        <div class="not-found-state" id="orderNotFound">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h2>Order Not Found</h2>
+            <p style="color: var(--text-muted); margin-bottom: 24px;">We couldn't find an order with this ID.</p>
+            <a href="/profile.html" class="btn btn-primary">View All Orders</a>
+        </div>
+
+        <!-- Main Tracking Layout -->
+        <div class="order-tracking-layout" id="orderTrackerContainer" style="display: none;">
+            
+            <!-- Left: Order Summary -->
+            <div class="summary-card">
+                <div class="summary-header">
+                    <h3>Order Summary</h3>
+                    <span id="orderId">#LOADING</span>
+                </div>
+                <span class="summary-date" id="orderDate">Loading date...</span>
+                
+                <div class="address-box" id="orderAddress">
+                    Loading address...
+                </div>
+
+                <div id="orderItemsList">
+                    <!-- Items populated by JS -->
+                </div>
+
+                <div class="total-box">
+                    <span>Total Paid</span>
+                    <span id="orderGrandTotal">₹0</span>
+                </div>
+            </div>
+
+            <!-- Right: Realtime Timeline -->
+            <div class="timeline-card">
+                <h2>Current Status</h2>
+                <div class="timeline-container" id="timelineContainer">
+                    <!-- Timeline populated by JS -->
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script type="module" src="/js/order.js"></script>
+
+    <!-- Inner page theme toggle -->
+    <script type="module">
+        const themeToggle = document.getElementById('themeToggle');
+        if(themeToggle) {
+            const initTheme = () => {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                themeToggle.querySelector('i').className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            };
+            initTheme();
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.querySelector('i').className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            });
+        }
+    </script>
+</body>
+</html>

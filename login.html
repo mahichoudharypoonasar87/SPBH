@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login to your Shree Panchmukhi Balaji Handloom account to track orders and manage your wishlist.">
+    <title>Login | Shree Panchmukhi Balaji Handloom</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/assets/icons/favicon.png" type="image/png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <link rel="stylesheet" href="/css/animation.css">
+    
+    <style>
+        /* Specific styling for Auth background to make it premium */
+        body {
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-primary) 100%);
+        }
+        .auth-bg-shape {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            z-index: 0;
+        }
+        .shape-1 { top: -100px; left: -100px; }
+        .shape-2 { bottom: -100px; right: -100px; }
+        
+        /* Forgot Password Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            display: none; /* Toggled by JS */
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+        }
+        .modal-box {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+        .modal-box h3 { font-family: var(--font-heading); margin-bottom: 16px; }
+        .modal-box p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px; }
+    </style>
+</head>
+<body>
+    <!-- Background Shapes -->
+    <div class="auth-bg-shape shape-1" aria-hidden="true"></div>
+    <div class="auth-bg-shape shape-2" aria-hidden="true"></div>
+
+    <div class="auth-container">
+        <div class="auth-card animate-scaleIn">
+            <!-- Logo -->
+            <a href="/index.html" class="logo" style="justify-content: center; display: flex; margin-bottom: 32px; font-size: 1.6rem;">
+                Shree <span>Panchmukhi</span> Balaji
+            </a>
+
+            <h2>Welcome Back</h2>
+            <p>Login to access your account and track orders</p>
+
+            <!-- Login Form -->
+            <form id="loginForm" novalidate>
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="you@example.com" required aria-required="true">
+                </div>
+
+                <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
+                    <label for="loginPassword" style="margin-bottom: 0;">Password</label>
+                    <a href="#" id="forgotPasswordLink" style="font-size: 0.85rem; color: var(--primary); font-weight: 600;">Forgot Password?</a>
+                </div>
+                <div class="form-group" style="margin-top: 8px;">
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Enter your password" required aria-required="true">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">
+                    Login <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="auth-divider">or continue with</div>
+
+            <!-- Google Auth -->
+            <button id="googleLoginBtn" class="google-btn">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/24px-Google_%22G%22_logo.svg.png" alt="Google Icon" width="20" height="20">
+                Login with Google
+            </button>
+
+            <div class="auth-footer">
+                Don't have an account? <a href="/signup.html">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal-overlay" id="forgotEmailModal" role="dialog" aria-modal="true" aria-label="Reset Password">
+        <div class="modal-box animate-scaleIn">
+            <h3>Reset Password</h3>
+            <p>Enter your email address and we'll send you a link to reset your password.</p>
+            <div class="form-group" style="text-align: left;">
+                <input type="email" id="resetEmailInput" class="form-control" placeholder="Enter your email">
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="document.getElementById('forgotEmailModal').style.display='none'">Cancel</button>
+                <button class="btn btn-primary" style="flex: 1;" id="resetPasswordBtn">Send Link</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/js/auth.js"></script>
+</body>
+</html>

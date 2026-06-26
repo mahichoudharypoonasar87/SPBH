@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="View product details at Shree Panchmukhi Balaji Handloom. Premium quality handloom clothing.">
+    <title>Product Details | Shree Panchmukhi Balaji Handloom</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/assets/icons/favicon.png" type="image/png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <link rel="stylesheet" href="/css/animation.css">
+
+    <style>
+        /* Product Page Specific Layout */
+        .product-page-header {
+            padding: 100px 0 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .breadcrumb {
+            display: flex;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        .breadcrumb a:hover { color: var(--primary); }
+        .breadcrumb .sep { color: var(--border-color); }
+
+        .product-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            padding: 60px 0;
+            align-items: start;
+        }
+
+        /* Left: Image Gallery */
+        .product-gallery {
+            position: sticky;
+            top: 100px;
+        }
+        .main-image-wrapper {
+            width: 100%;
+            aspect-ratio: 3/4;
+            border-radius: 24px;
+            overflow: hidden;
+            background: var(--bg-secondary);
+            margin-bottom: 20px;
+            cursor: zoom-in;
+            position: relative;
+        }
+        .main-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.1s ease-out;
+        }
+        .thumbnail-track {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        .thumbnail {
+            width: 80px;
+            height: 100px;
+            flex-shrink: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all var(--transition-fast);
+        }
+        .thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+        .thumbnail.active, .thumbnail:hover {
+            border-color: var(--primary);
+            opacity: 1;
+        }
+
+        /* Right: Product Details */
+        .product-details {
+            padding-top: 10px;
+        }
+        .product-category-tag {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .product-title {
+            font-family: var(--font-heading);
+            font-size: 2.4rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+        
+        /* Price Block */
+        .price-block {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .current-selling-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .original-mrp {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+        .discount-tag {
+            background: #FF3B30;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        /* Stock */
+        .stock-info {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+
+        /* Size Selection */
+        .size-label {
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .size-options {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .size-btn {
+            min-width: 50px;
+            height: 50px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+            background: transparent;
+            color: var(--text-primary);
+        }
+        .size-btn:hover { border-color: var(--text-primary); }
+        .size-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #000;
+        }
+
+        /* Quantity & Actions */
+        .actions-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+        .qty-selector {
+            display: flex;
+            align-items: center;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            height: 50px;
+        }
+        .qty-selector button {
+            width: 50px;
+            height: 100%;
+            background: var(--bg-secondary);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background var(--transition-fast);
+        }
+        .qty-selector button:hover { background: var(--primary); color: #000; }
+        .qty-selector span {
+            width: 50px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .btn-add-cart {
+            flex-grow: 1;
+            height: 50px;
+            font-size: 1rem;
+        }
+        .btn-share {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            transition: all var(--transition-fast);
+            background: transparent;
+        }
+        .btn-share:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* Description */
+        .desc-box {
+            border-top: 1px solid var(--border-color);
+            padding-top: 30px;
+            margin-top: 10px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        /* Related Products Section */
+        .related-section {
+            padding: 60px 0;
+            background: var(--bg-secondary);
+            margin-top: 60px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .product-layout {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding: 30px 0;
+            }
+            .product-gallery { position: static; }
+            .product-title { font-size: 1.8rem; }
+            .current-selling-price { font-size: 1.5rem; }
+            .main-image-wrapper { aspect-ratio: 1/1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Simple Header -->
+    <header class="header scrolled" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/index.html" class="logo">Shree <span>Panchmukhi</span> Balaji</a>
+                <div class="nav-actions">
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode"><i class="fas fa-moon"></i></button>
+                    <a href="/cart.html" class="cart-icon-btn" style="position: relative;">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="cart-count" id="cartCount" style="position:absolute; top:-8px; right:-10px; background:var(--primary); color:#000; font-size:0.65rem; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center;">0</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Breadcrumb Header -->
+    <div class="product-page-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="/index.html">Home</a>
+                <span class="sep"><i class="fas fa-chevron-right"></i></span>
+                <a href="#" id="breadcrumbCat">Category</a>
+                <span class="sep"><i class="fas fa-chevron-right"></i></span>
+                <span id="breadcrumbName">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Product Content -->
+    <main class="container" id="productContainer">
+        <div class="product-layout">
+            
+            <!-- Left: Gallery -->
+            <div class="product-gallery">
+                <div class="main-image-wrapper" id="mainImageWrapper">
+                    <img id="mainImage" src="" alt="Product Image">
+                </div>
+                <div class="thumbnail-track" id="thumbnailContainer">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Right: Details -->
+            <div class="product-details">
+                <span class="product-category-tag" id="productCategory">Category</span>
+                <h1 class="product-title" id="productName">Loading Product Name...</h1>
+                
+                <div class="price-block">
+                    <span class="current-selling-price" id="productPrice">₹0</span>
+                    <span class="original-mrp" id="productMrp" style="display:none;">₹0</span>
+                    <span class="discount-tag" id="productDiscount" style="display:none;">0% OFF</span>
+                </div>
+
+                <p class="stock-info in-stock" id="stockStatus">Checking stock...</p>
+
+                <!-- Sizes -->
+                <label class="size-label">Select Size</label>
+                <div class="size-options" id="sizeOptionsContainer" style="display: none;">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Quantity & Actions -->
+                <div class="actions-row">
+                    <div class="qty-selector">
+                        <button id="qtyMinus" aria-label="Decrease Quantity">-</button>
+                        <span id="qtyValue">1</span>
+                        <button id="qtyPlus" aria-label="Increase Quantity">+</button>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-add-cart" id="addToCartBtn">
+                        <i class="fas fa-shopping-bag"></i> Add to Cart
+                    </button>
+
+                    <button class="btn-share" id="shareBtn" aria-label="Share Product">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                </div>
+
+                <!-- Description -->
+                <div class="desc-box">
+                    <h3 style="font-family: var(--font-heading); margin-bottom: 16px; font-size: 1.2rem;">Description</h3>
+                    <div id="productDesc">
+                        Loading product description...
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Related Products Section -->
+    <section class="related-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>You May Also Like</h2>
+            </div>
+            <div class="product-grid" id="relatedProductsGrid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script type="module" src="/js/product.js"></script>
+
+    <!-- Inline JS for inner page theme & cart count sync -->
+    <script type="module">
+        // Theme toggle for inner pages
+        const themeToggle = document.getElementById('themeToggle');
+        if(themeToggle) {
+            const initTheme = () => {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                themeToggle.querySelector('i').className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            };
+            initTheme();
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.querySelector('i').className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            });
+        }
+
+        // Sync Cart Count
+        const updateCartCount = () => {
+            const cart = JSON.parse(localStorage.getItem('spbh_cart')) || [];
+            const countEl = document.getElementById('cartCount');
+            if(countEl) {
+                countEl.innerText = cart.reduce((acc, item) => acc + item.qty, 0);
+            }
+        };
+        updateCartCount();
+        window.addEventListener('storage', updateCartCount); // Update if cart changes in another tab
+    </script>
+</body>
+</html>

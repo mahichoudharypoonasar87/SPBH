@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Review your shopping cart and checkout via WhatsApp at Shree Panchmukhi Balaji Handloom.">
+    <title>Shopping Cart | Shree Panchmukhi Balaji Handloom</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/assets/icons/favicon.png" type="image/png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <link rel="stylesheet" href="/css/animation.css">
+
+    <style>
+        .page-header { padding: 120px 0 40px; text-align: center; background: var(--bg-secondary); }
+        .page-header h1 { font-family: var(--font-heading); font-size: 2.5rem; margin-bottom: 8px; }
+        .page-header p { color: var(--text-secondary); }
+        .cart-layout { display: grid; grid-template-columns: 1fr 400px; gap: 40px; padding: 60px 0; align-items: start; }
+        .full-cart-item { display: flex; gap: 24px; padding: 24px; background: var(--bg-card); border-radius: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); margin-bottom: 20px; transition: all var(--transition-fast); }
+        .full-cart-item:hover { box-shadow: var(--shadow-md); }
+        .full-cart-img { width: 120px; height: 120px; flex-shrink: 0; border-radius: 12px; overflow: hidden; background: var(--bg-secondary); }
+        .full-cart-img img { width: 100%; height: 100%; object-fit: cover; }
+        .full-cart-details { flex-grow: 1; }
+        .full-cart-name { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; display: block; }
+        .full-cart-name:hover { color: var(--primary); }
+        .full-cart-category { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .full-cart-price-box { margin-bottom: 16px; }
+        .full-cart-actions { display: flex; justify-content: space-between; align-items: center; }
+        .qty-control { display: flex; align-items: center; border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; }
+        .qty-control .qty-btn { width: 36px; height: 36px; background: var(--bg-secondary); border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+        .qty-control .qty-btn:hover { background: var(--primary); color: #000; }
+        .qty-control .qty-value { width: 40px; text-align: center; font-weight: 600; }
+        .remove-item-btn { color: #FF3B30; font-size: 0.9rem; font-weight: 500; transition: color var(--transition-fast); }
+        .remove-item-btn:hover { color: #cc0000; }
+        .cart-summary-card { background: var(--bg-card); padding: 32px; border-radius: 24px; box-shadow: var(--shadow-md); border: 1px solid var(--border-color); position: sticky; top: 100px; }
+        .summary-title { font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 24px; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 0.95rem; color: var(--text-secondary); }
+        .summary-row.discount { color: #34C759; font-weight: 600; }
+        .summary-divider { height: 1px; background: var(--border-color); margin: 20px 0; }
+        .summary-total { display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: 32px; }
+        .checkout-form .form-group { margin-bottom: 16px; }
+        .whatsapp-checkout-btn { width: 100%; padding: 16px; background: #25D366; color: #fff; border-radius: 12px; font-size: 1.05rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all var(--transition-fast); margin-top: 10px; }
+        .whatsapp-checkout-btn:hover { background: #1da851; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3); }
+        .empty-cart-page { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 80px 20px; min-height: 50vh; }
+        .empty-cart-page i { font-size: 5rem; color: var(--border-color); margin-bottom: 24px; }
+        .empty-cart-page h2 { font-family: var(--font-heading); margin-bottom: 12px; }
+        .empty-cart-page p { color: var(--text-muted); margin-bottom: 32px; }
+        @media (max-width: 768px) {
+            .cart-layout { grid-template-columns: 1fr; }
+            .full-cart-item { flex-direction: column; align-items: center; text-align: center; }
+            .full-cart-img { width: 100%; height: 200px; }
+            .full-cart-actions { flex-direction: column; gap: 16px; }
+            .cart-summary-card { position: static; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header scrolled" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/index.html" class="logo">Shree <span>Panchmukhi</span> Balaji</a>
+                <div class="nav-actions">
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode"><i class="fas fa-moon"></i></button>
+                    <a href="/index.html" class="btn btn-sm btn-secondary">Continue Shopping</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <div class="container">
+            <h1>Shopping Cart</h1>
+            <p>Review your items before placing order via WhatsApp</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="empty-cart-page" id="emptyCartPage">
+            <i class="fas fa-shopping-bag"></i>
+            <h2>Your Cart is Empty</h2>
+            <p>Looks like you haven't added anything to your cart yet.</p>
+            <a href="/index.html" class="btn btn-primary">Start Shopping</a>
+        </div>
+
+        <div class="cart-layout" id="cartPageContainer">
+            <div class="cart-items-list">
+                <div id="cartItemsGrid"></div>
+            </div>
+
+            <div class="cart-summary-card" id="cartSummaryCard">
+                <h3 class="summary-title">Order Summary</h3>
+                
+                <div class="summary-row">
+                    <span>Total MRP</span>
+                    <span id="totalMrp">₹0</span>
+                </div>
+                <div class="summary-row discount">
+                    <span>Discount</span>
+                    <span id="totalDiscount">- ₹0</span>
+                </div>
+                
+                <div class="summary-divider"></div>
+                
+                <div class="summary-total">
+                    <span>Grand Total</span>
+                    <span id="grandTotal">₹0</span>
+                </div>
+
+                <form class="checkout-form" id="checkoutForm">
+                    <div class="form-group">
+                        <label for="custName">Full Name *</label>
+                        <input type="text" id="custName" class="form-control" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="custMobile">Mobile Number *</label>
+                        <input type="tel" id="custMobile" class="form-control" placeholder="10-digit mobile number" pattern="[0-9]{10}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="custAddress">Delivery Address *</label>
+                        <textarea id="custAddress" class="form-control" rows="3" placeholder="House No, Street, Landmark..." required style="resize: vertical;"></textarea>
+                    </div>
+
+                    <button type="submit" class="whatsapp-checkout-btn" id="checkoutBtn">
+                        <i class="fab fa-whatsapp"></i> Place Order via WhatsApp
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="/js/cart.js"></script>
+    <script type="module" src="/js/checkout.js"></script>
+
+    <script type="module">
+        const themeToggle = document.getElementById('themeToggle');
+        if(themeToggle) {
+            const initTheme = () => {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                themeToggle.querySelector('i').className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            };
+            initTheme();
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.querySelector('i').className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            });
+        }
+    </script>
+</body>
+</html>

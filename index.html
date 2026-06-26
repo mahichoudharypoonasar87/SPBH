@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Shree Panchmukhi Balaji Handloom - Premium quality handloom clothing. Shop the latest collection of traditional and modern wear in Poonasar, Rajasthan.">
+    <meta name="keywords" content="Handloom, Clothing, Rajasthan, Poonasar, Traditional Wear, Premium Clothing, Shree Panchmukhi Balaji">
+    <meta name="author" content="Shree Panchmukhi Balaji Handloom">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Shree Panchmukhi Balaji Handloom | Premium Handloom Clothing">
+    <meta property="og:description" content="Discover the essence of Rajasthan with our premium handloom collections.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourdomain.vercel.app/">
+    
+    <title>Shree Panchmukhi Balaji Handloom | Premium Handloom Clothing</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#D4AF37">
+    
+    <!-- Favicon (Placeholder path) -->
+    <link rel="icon" href="/assets/icons/favicon.png" type="image/png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Custom Stylesheets -->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <link rel="stylesheet" href="/css/animation.css">
+</head>
+<body>
+
+    <!-- ================================= -->
+    <!-- HEADER / NAVIGATION               -->
+    <!-- ================================= -->
+    <header class="header" id="header" role="banner">
+        <div class="container">
+            <nav class="nav" aria-label="Main Navigation">
+                <!-- Logo -->
+                <a href="/index.html" class="logo" aria-label="Home">
+                    Shree <span>Panchmukhi</span> Balaji
+                </a>
+
+                <!-- Desktop Navigation Links -->
+                <ul class="nav-links" id="navLinks" role="menubar">
+                    <li role="none"><a href="/index.html" role="menuitem" class="active">Home</a></li>
+                    <li role="none"><a href="#latest-collection" role="menuitem">Collection</a></li>
+                    <li role="none"><a href="#categories" role="menuitem">Categories</a></li>
+                    <li role="none"><a href="#trending" role="menuitem">Trending</a></li>
+                    <li role="none"><a href="/orders.html" role="menuitem">Track Order</a></li>
+                </ul>
+
+                <!-- Right Actions -->
+                <div class="nav-actions">
+                    <!-- Theme Toggle -->
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+
+                    <!-- Search (Desktop) -->
+                    <button class="theme-toggle" id="searchToggle" aria-label="Search Products">
+                        <i class="fas fa-search"></i>
+                    </button>
+
+                    <!-- User Profile -->
+                    <a href="/profile.html" class="user-menu-btn" aria-label="User Profile">
+                        <i class="far fa-user"></i>
+                    </a>
+
+                    <!-- Cart Icon -->
+                    <button class="cart-icon-btn" id="cartToggle" aria-label="Open Shopping Cart">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </button>
+
+                    <!-- Mobile Menu Toggle -->
+                    <div class="menu-toggle" id="menuToggle" aria-label="Toggle Menu" role="button" tabindex="0">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ================================= -->
+    <!-- SEARCH OVERLAY                    -->
+    <!-- ================================= -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="container">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search for products, categories..." autocomplete="off" aria-label="Search Input">
+                <button id="closeSearch" aria-label="Close Search"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="search-results" id="searchResults">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <main>
+        <!-- ================================= -->
+        <!-- HERO SECTION                     -->
+        <!-- ================================= -->
+        <section class="hero" id="hero">
+            <div class="hero-visual" aria-hidden="true"></div>
+            <div class="container">
+                <div class="hero-content">
+                    <span class="hero-badge">New Season Arrivals</span>
+                    <h1 class="hero-title">
+                        The Art of <br><span class="highlight">Rajasthani</span> Elegance
+                    </h1>
+                    <p class="hero-desc">
+                        Discover the timeless beauty of handloom craftsmanship. Premium fabrics woven with tradition, designed for the modern era.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#latest-collection" class="btn btn-primary">
+                            Shop Collection <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="#categories" class="btn btn-secondary">
+                            Explore Categories
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================= -->
+        <!-- OFFER BANNER                     -->
+        <!-- ================================= -->
+        <section class="offer-banner" aria-label="Special Offer">
+            <div class="container">
+                <div class="glass offer-content">
+                    <div class="offer-text">
+                        <span>Flat 40% OFF</span>
+                        <h3>On Selected Handloom Sarees & Suits</h3>
+                        <p>Use Code: <strong>BALAJI40</strong> at checkout via WhatsApp</p>
+                    </div>
+                    <a href="#latest-collection" class="btn btn-sm btn-primary">Shop Now</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================= -->
+        <!-- CATEGORIES SECTION               -->
+        <!-- ================================= -->
+        <section class="section-padding" id="categories" aria-labelledby="cat-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="cat-heading">Shop by Category</h2>
+                    <p>Find exactly what you're looking for</p>
+                </div>
+                
+                <div class="category-grid">
+                    <!-- Category 1 -->
+                    <a href="#" class="category-card" data-category="Sarees">
+                        <div class="category-img" style="background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);">
+                            <i class="fas fa-vest-patches"></i>
+                        </div>
+                        <h3>Sarees</h3>
+                    </a>
+                    <!-- Category 2 -->
+                    <a href="#" class="category-card" data-category="Suits">
+                        <div class="category-img" style="background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);">
+                            <i class="fas fa-tshirt"></i>
+                        </div>
+                        <h3>Suits</h3>
+                    </a>
+                    <!-- Category 3 -->
+                    <a href="#" class="category-card" data-category="Lehengas">
+                        <div class="category-img" style="background: linear-gradient(120deg, #f093fb 0%, #f5576c 100%);">
+                            <i class="fas fa-hat-cowboy-side"></i>
+                        </div>
+                        <h3>Lehengas</h3>
+                    </a>
+                    <!-- Category 4 -->
+                    <a href="#" class="category-card" data-category="Bedsheets">
+                        <div class="category-img" style="background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);">
+                            <i class="fas fa-bed"></i>
+                        </div>
+                        <h3>Bedsheets</h3>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================= -->
+        <!-- LATEST COLLECTION SECTION        -->
+        <!-- ================================= -->
+        <section class="section-padding" id="latest-collection" style="background: var(--bg-secondary);" aria-labelledby="lat-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="lat-heading">Latest Collection</h2>
+                    <p>Handpicked fresh arrivals just for you</p>
+                </div>
+                
+                <div class="product-grid" id="latestProductsGrid">
+                    <!-- Skeleton Loaders injected by JS initially -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================= -->
+        <!-- FEATURED PRODUCTS SECTION        -->
+        <!-- ================================= -->
+        <section class="section-padding" id="featured" aria-labelledby="feat-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="feat-heading">Featured Products</h2>
+                    <p>Our top-selling premium handloom items</p>
+                </div>
+                
+                <div class="product-grid" id="featuredProductsGrid">
+                    <!-- Skeleton Loaders injected by JS initially -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================= -->
+        <!-- TRENDING SECTION                 -->
+        <!-- ================================= -->
+        <section class="section-padding" id="trending" style="background: var(--bg-secondary);" aria-labelledby="trend-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="trend-heading">Trending Now</h2>
+                    <p>What everyone is talking about</p>
+                </div>
+                
+                <div class="product-scroll-container hide-scrollbar">
+                    <div class="product-scroll-wrapper" id="trendingProductsWrapper">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================= -->
+        <!-- TESTIMONIALS SECTION             -->
+        <!-- ================================= -->
+        <section class="section-padding" id="testimonials" aria-labelledby="test-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="test-heading">What Our Customers Say</h2>
+                    <p>Real reviews from real people</p>
+                </div>
+
+                <div class="testimonial-grid">
+                    <div class="testimonial-card glass">
+                        <div class="stars">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p>"Absolutely stunning quality! The fabric feels so premium. Truly represents the rich culture of Rajasthan."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">P</div>
+                            <div>
+                                <h4>Priya Sharma</h4>
+                                <span>Jodhpur, Rajasthan</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card glass">
+                        <div class="stars">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <p>"Fast delivery via WhatsApp order and the colors were exactly as shown. Will buy again for sure."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">R</div>
+                            <div>
+                                <h4>Rakesh Jain</h4>
+                                <span>Poonasar, Rajasthan</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card glass">
+                        <div class="stars">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p>"Bought a bedsheet set. The handloom texture is amazing. Best value for money store in our area."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">A</div>
+                            <div>
+                                <h4>Anita Joshi</h4>
+                                <span>Ahmedabad, Gujarat</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ================================= -->
+    <!-- CART SIDEBAR                      -->
+    <!-- ================================= -->
+    <div class="cart-overlay" id="cartOverlay" aria-hidden="true"></div>
+    <aside class="cart-sidebar" id="cartSidebar" role="dialog" aria-label="Shopping Cart">
+        <div class="cart-header">
+            <h3>Your Cart (<span id="cartItemCount">0</span>)</h3>
+            <button class="cart-close" id="cartClose" aria-label="Close Cart"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-items-container" id="cartItemsContainer">
+            <!-- Dynamic Cart Items -->
+            <div class="empty-cart" id="emptyCartMsg" style="text-align: center; padding-top: 40px; color: var(--text-muted);">
+                <i class="fas fa-shopping-bag" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.3;"></i>
+                <p>Your cart is empty</p>
+            </div>
+        </div>
+        <div class="cart-footer" id="cartFooter" style="display: none;">
+            <div class="cart-total">
+                <span>Grand Total</span>
+                <span id="grandTotal">₹0</span>
+            </div>
+            <a href="/cart.html" class="btn btn-primary" style="width: 100%;">View Full Cart</a>
+        </div>
+    </aside>
+
+    <!-- ================================= -->
+    <!-- FOOTER                            -->
+    <!-- ================================= -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- About Column -->
+                <div class="footer-about">
+                    <a href="/index.html" class="logo">Shree <span>Panchmukhi</span> Balaji</a>
+                    <p>Premium handloom clothing store bringing the authentic essence of Rajasthani fabrics directly to your doorstep. Quality, tradition, and trust since generations.</p>
+                    <div class="footer-socials">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="/index.html">Home</a></li>
+                        <li><a href="#latest-collection">Collection</a></li>
+                        <li><a href="/cart.html">Cart</a></li>
+                        <li><a href="/orders.html">Track Order</a></li>
+                    </ul>
+                </div>
+
+                <!-- Categories -->
+                <div class="footer-col">
+                    <h4>Categories</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Sarees</a></li>
+                        <li><a href="#">Suits</a></li>
+                        <li><a href="#">Lehengas</a></li>
+                        <li><a href="#">Bedsheets</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="footer-col">
+                    <h4>Contact Us</h4>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-map-marker-alt"></i> Panchori Road, Poonasar, Rajasthan - 342312</li>
+                        <li><a href="https://wa.me/919876543210"><i class="fab fa-whatsapp"></i> +91 98765 43210</a></li>
+                        <li><a href="mailto:info@shreebalaji.com"><i class="fas fa-envelope"></i> info@shreebalaji.com</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 Shree Panchmukhi Balaji Handloom. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================================= -->
+    <!-- SCRIPTS (ES6 Modules)             -->
+    <!-- ================================= -->
+    <script type="module" src="/js/app.js"></script>
+
+</body>
+</html>

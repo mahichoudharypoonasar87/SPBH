@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow"> <!-- Prevent search engines from indexing admin panel -->
+    <title>Admin Panel | Shree Panchmukhi Balaji Handloom</title>
+
+    <link rel="icon" href="/assets/icons/favicon.png" type="image/png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    <link rel="stylesheet" href="/css/animation.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+    <div class="admin-layout">
+        
+        <!-- ================================= -->
+        <!-- SIDEBAR                           -->
+        <!-- ================================= -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-logo">
+                <i class="fas fa-shield-alt"></i> Admin Panel
+            </div>
+            
+            <ul class="admin-menu">
+                <li><a href="#" class="active" data-section="dashboard"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="#" data-section="products"><i class="fas fa-box-open"></i> Products</a></li>
+                <li><a href="#" data-section="orders"><i class="fas fa-truck"></i> Orders</a></li>
+                <li><a href="/index.html" target="_blank"><i class="fas fa-store"></i> View Store</a></li>
+                <li><a href="#" class="logout" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </aside>
+
+        <!-- ================================= -->
+        <!-- MAIN CONTENT                      -->
+        <!-- ================================= -->
+        <main class="admin-main">
+            
+            <div class="admin-header">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 id="pageTitle">Dashboard</h1>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode" style="font-size: 1.2rem;">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+
+            <!-- ---------------------------- -->
+            <!-- 1. DASHBOARD SECTION         -->
+            <!-- ---------------------------- -->
+            <section class="admin-section" id="dashboard">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue"><i class="fas fa-box"></i></div>
+                        <div class="stat-info">
+                            <h3>Total Products</h3>
+                            <div class="stat-number" id="totalProducts">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-shopping-cart"></i></div>
+                        <div class="stat-info">
+                            <h3>Total Orders</h3>
+                            <div class="stat-number" id="totalOrders">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <h3>Total Users</h3>
+                            <div class="stat-number" id="totalUsers">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple"><i class="fas fa-indian-rupee-sign"></i></div>
+                        <div class="stat-info">
+                            <h3>Revenue</h3>
+                            <div class="stat-number" id="totalRevenue">₹0</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---------------------------- -->
+            <!-- 2. PRODUCTS SECTION          -->
+            <!-- ---------------------------- -->
+            <section class="admin-section" id="products" style="display: none;">
+                
+                <!-- Add/Edit Product Form -->
+                <div class="admin-card" id="productFormSection" style="margin-bottom: 40px;">
+                    <div class="admin-card-header">
+                        <h2 id="productFormTitle">Add New Product</h2>
+                    </div>
+                    <div class="admin-form-container">
+                        <form id="productForm">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="productNameInput">Product Name *</label>
+                                    <input type="text" id="productNameInput" class="form-control" placeholder="e.g. Premium Silk Saree" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="productCategoryInput">Category *</label>
+                                    <select id="productCategoryInput" class="form-control" required>
+                                        <option value="">Select Category</option>
+                                        <option value="Sarees">Sarees</option>
+                                        <option value="Suits">Suits</option>
+                                        <option value="Lehengas">Lehengas</option>
+                                        <option value="Bedsheets">Bedsheets</option>
+                                        <option value="Dress Material">Dress Material</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="productDescInput">Description</label>
+                                    <textarea id="productDescInput" class="form-control" rows="4" placeholder="Write product details, fabric type, etc."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="productCollectionInput">Collection Tag</label>
+                                    <input type="text" id="productCollectionInput" class="form-control" placeholder="e.g. Summer 2024, Diwali Special">
+                                </div>
+                                <div class="form-group">
+                                    <label for="productStockInput">Stock Quantity *</label>
+                                    <input type="number" id="productStockInput" class="form-control" min="0" placeholder="e.g. 50" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="productMrpInput">MRP (Maximum Retail Price) *</label>
+                                    <input type="number" id="productMrpInput" class="form-control" min="1" placeholder="e.g. 1500" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="productSellingPriceInput">Selling Price *</label>
+                                    <input type="number" id="productSellingPriceInput" class="form-control" min="1" placeholder="e.g. 999" required>
+                                </div>
+                                <div class="form-group" style="display: flex; align-items: center; padding-top: 30px;">
+                                    <label class="toggle-switch" style="margin-right: 12px;">
+                                        <input type="checkbox" id="productFeaturedToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span style="font-weight: 500;">Mark as Featured</span>
+                                </div>
+                                
+                                <!-- Image Upload -->
+                                <div class="form-group full-width">
+                                    <label>Product Images (Max 4, auto-compressed to <200KB)</label>
+                                    <div class="image-dropzone" id="imageDropzone">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Drag & Drop images here or <span>browse files</span></p>
+                                        <input type="file" id="imageFileInput" accept="image/*" multiple hidden>
+                                    </div>
+                                    <div class="image-previews" id="imagePreviews">
+                                        <!-- Previews populated by JS -->
+                                    </div>
+                                </div>
+
+                                <div class="form-group full-width" style="display: flex; gap: 16px;">
+                                    <button type="submit" class="btn btn-primary" id="submitProductBtn">Add Product</button>
+                                    <button type="button" class="btn btn-secondary" id="cancelEditBtn" style="display: none;">Cancel Edit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h2>All Products</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Name / Category</th>
+                                    <th>MRP</th>
+                                    <th>Selling / Off</th>
+                                    <th>Stock</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody">
+                                <!-- Populated by admin.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---------------------------- -->
+            <!-- 3. ORDERS SECTION            -->
+            <!-- ---------------------------- -->
+            <section class="admin-section" id="orders" style="display: none;">
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h2>Manage Orders</h2>
+                        <div style="position: relative;">
+                            <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                            <input type="text" id="orderSearchInput" class="form-control" placeholder="Search by ID, Name or Mobile..." style="padding-left: 36px; width: 300px; max-width: 100%;">
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID / Date</th>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Update Status</th>
+                                    <th>Current Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <!-- Populated by admin.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="/js/admin.js"></script>
+
+    <!-- Admin Inner Page Theme Toggle & Page Title Updater -->
+    <script type="module">
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        if(themeToggle) {
+            const initTheme = () => {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                themeToggle.querySelector('i').className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            };
+            initTheme();
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.querySelector('i').className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            });
+        }
+
+        // Update Page Title on Tab Click (Bonus UX improvement)
+        const pageTitleEl = document.getElementById('pageTitle');
+        const menuLinks = document.querySelectorAll('.admin-menu a[data-section]');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                const sectionName = link.textContent.trim();
+                if(pageTitleEl) pageTitleEl.innerText = sectionName;
+            });
+        });
+    </script>
+</body>
+</html>
