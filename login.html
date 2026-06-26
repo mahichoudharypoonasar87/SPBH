@@ -123,9 +123,12 @@
         </div>
     </div>
 
-    <script>
-    alert("JS File load ho rahi hai!");
+        <script>
+        window.addEventListener('unhandledrejection', event => {
+            alert('Hidden Error Found: ' + event.reason.message);
+        });
     </script>
+    <script type="module" src="/js/auth.js"></script>
 
     <script type="module" src="/js/auth.js"></script>
 </body>
