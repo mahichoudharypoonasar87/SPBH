@@ -8,6 +8,7 @@
  * add to cart, and related products rendering.
  * =====================================================
  */
+alert("Product.js file load ho gayi!");
 
 // Imports
 import { getProductById, getRelatedProducts } from './products.js';
