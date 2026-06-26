@@ -25,28 +25,24 @@ import { compressImage, formatCurrency, calculateDiscount, showToast } from './u
 // 1. State Variables        //
 // ------------------------- //
 let currentEditProductId = null;
-let selectedImageFiles = []; // Stores actual File objects for upload
-let existingImageUrls = [];   // Stores URLs when editing a product
+let selectedImageFiles = []; 
+let existingImageUrls = [];   
 
 // ------------------------- //
 // 2. DOM Elements           //
 // ------------------------- //
-// Sidebar & Nav
 const mobileMenuToggle = document.getElementById('mobileMenuToggle');
 const adminSidebar = document.getElementById('adminSidebar');
 const adminLogoutBtn = document.getElementById('adminLogoutBtn');
 
-// Dashboard
 const totalProductsEl = document.getElementById('totalProducts');
 const totalOrdersEl = document.getElementById('totalOrders');
 const totalUsersEl = document.getElementById('totalUsers');
 const totalRevenueEl = document.getElementById('totalRevenue');
 
-// Sections (Tabs)
 const sections = document.querySelectorAll('.admin-section');
 const menuLinks = document.querySelectorAll('.admin-menu a');
 
-// Product Management
 const productForm = document.getElementById('productForm');
 const productFormTitle = document.getElementById('productFormTitle');
 const productNameInput = document.getElementById('productNameInput');
@@ -64,7 +60,6 @@ const submitProductBtn = document.getElementById('submitProductBtn');
 const cancelEditBtn = document.getElementById('cancelEditBtn');
 const productsTableBody = document.getElementById('productsTableBody');
 
-// Order Management
 const ordersTableBody = document.getElementById('ordersTableBody');
 const orderSearchInput = document.getElementById('orderSearchInput');
 
@@ -83,16 +78,18 @@ onAuthStateChanged(auth, async (user) => {
             }
         } catch (error) {
             console.error("Admin check failed:", error);
-            window.location.href = '/login.html';
+            // FIX: Added redirect parameter here
+            window.location.href = '/login.html?redirect=/admin.html';
         }
     } else {
-        window.location.href = '/login.html';
+        // FIX: Added redirect parameter here so user comes back to admin after login
+        window.location.href = '/login.html?redirect=/admin.html';
     }
 });
 
 // ------------------------- //
 // 4. Initialize Admin       //
-// ------------------------- *
+// ------------------------- //
 const initAdminPanel = () => {
     loadDashboardStats();
     loadAllProducts();
@@ -104,49 +101,40 @@ const initAdminPanel = () => {
 // 5. Navigation & UI       //
 // ------------------------- //
 const setupEventListeners = () => {
-    // Mobile Sidebar Toggle
     if (mobileMenuToggle) {
         mobileMenuToggle.addEventListener('click', () => {
             adminSidebar.classList.toggle('active');
         });
     }
 
-    // Tab Navigation
     menuLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const targetId = link.getAttribute('data-section');
+            if(!targetId) return; // Ignore links like "View Store"
             
-            // Update Active Link
             menuLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
 
-            // Show Target Section
             sections.forEach(sec => sec.style.display = 'none');
             document.getElementById(targetId).style.display = 'block';
 
-            // Close mobile sidebar
             adminSidebar.classList.remove('active');
         });
     });
 
-    // Image Upload
     imageDropzone.addEventListener('click', () => imageFileInput.click());
     imageDropzone.addEventListener('dragover', (e) => { e.preventDefault(); imageDropzone.classList.add('dragover'); });
     imageDropzone.addEventListener('dragleave', () => imageDropzone.classList.remove('dragover'));
     imageDropzone.addEventListener('drop', handleImageDrop);
     imageFileInput.addEventListener('change', handleImageSelect);
 
-    // Form Submit
     productForm.addEventListener('submit', handleProductSubmit);
     
-    // Cancel Edit
     if(cancelEditBtn) cancelEditBtn.addEventListener('click', resetProductForm);
 
-    // Order Search
     if(orderSearchInput) orderSearchInput.addEventListener('input', handleOrderSearch);
 
-    // Logout
     if(adminLogoutBtn) {
         adminLogoutBtn.addEventListener('click', async () => {
             await signOut(auth);
@@ -160,18 +148,15 @@ const setupEventListeners = () => {
 // ------------------------- //
 const loadDashboardStats = async () => {
     try {
-        // Products Count
         const prodSnap = await getDocs(collection(db, "products"));
         if(totalProductsEl) totalProductsEl.innerText = prodSnap.size;
 
-        // Orders Count & Revenue
         const ordSnap = await getDocs(collection(db, "orders"));
         let revenue = 0;
         ordSnap.forEach(doc => revenue += (doc.data().grandTotal || 0));
         if(totalOrdersEl) totalOrdersEl.innerText = ordSnap.size;
         if(totalRevenueEl) totalRevenueEl.innerText = formatCurrency(revenue);
 
-        // Users Count
         const userSnap = await getDocs(collection(db, "users"));
         if(totalUsersEl) totalUsersEl.innerText = userSnap.size;
     } catch (error) {
@@ -192,7 +177,7 @@ const handleImageDrop = (e) => {
 const handleImageSelect = (e) => {
     const files = Array.from(e.target.files);
     processImages(files);
-    e.target.value = ''; // Reset input
+    e.target.value = ''; 
 };
 
 const processImages = async (files) => {
@@ -215,7 +200,6 @@ const processImages = async (files) => {
 const renderImagePreviews = () => {
     imagePreviews.innerHTML = '';
     
-    // Render existing URLs (during edit)
     existingImageUrls.forEach((url, index) => {
         imagePreviews.innerHTML += `
             <div class="preview-item">
@@ -224,7 +208,6 @@ const renderImagePreviews = () => {
             </div>`;
     });
 
-    // Render new selected files
     selectedImageFiles.forEach((file, index) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -238,7 +221,6 @@ const renderImagePreviews = () => {
     });
 };
 
-// Global functions for inline onclick
 window.removeExistingImage = (index) => {
     existingImageUrls.splice(index, 1);
     renderImagePreviews();
@@ -268,32 +250,27 @@ const handleProductSubmit = async (e) => {
             sellingPrice: Number(productSellingPriceInput.value),
             stock: Number(productStockInput.value),
             featured: productFeaturedToggle.checked,
-            // NO DISCOUNT FIELD SAVED - Calculated dynamically on frontend
             updatedAt: serverTimestamp()
         };
 
         let docRef;
 
         if (currentEditProductId) {
-            // UPDATE
             docRef = doc(db, "products", currentEditProductId);
             await updateDoc(docRef, productData);
             showToast('Product updated successfully!', 'success');
         } else {
-            // CREATE
             productData.createdAt = serverTimestamp();
-            productData.images = []; // Initialize empty, fill after upload
+            productData.images = []; 
             docRef = await addDoc(collection(db, "products"), productData);
             showToast('Product created! Uploading images...', 'success');
         }
 
-        // Handle Image Uploads
         if (selectedImageFiles.length > 0) {
             const uploadedUrls = await uploadImages(docRef.id, selectedImageFiles);
             const finalImages = [...existingImageUrls, ...uploadedUrls];
             await updateDoc(doc(db, "products", docRef.id), { images: finalImages });
         } else if (currentEditProductId) {
-            // If editing and no new images selected, keep existing ones
             await updateDoc(doc(db, "products", docRef.id), { images: existingImageUrls });
         }
 
@@ -369,7 +346,6 @@ window.editProduct = async (id) => {
         const p = docSnap.data();
         currentEditProductId = id;
         
-        // Populate Form
         productFormTitle.innerText = 'Edit Product';
         submitProductBtn.innerText = 'Update Product';
         cancelEditBtn.style.display = 'inline-block';
@@ -387,7 +363,6 @@ window.editProduct = async (id) => {
         selectedImageFiles = [];
         renderImagePreviews();
 
-        // Scroll to form
         document.getElementById('productFormSection').scrollIntoView({ behavior: 'smooth' });
         
     } catch (error) {
@@ -399,16 +374,7 @@ window.deleteProduct = async (id, name) => {
     if (!confirm(`Are you sure you want to delete "${name}"? This cannot be undone.`)) return;
 
     try {
-        // 1. Delete Document
         await deleteDoc(doc(db, "products", id));
-        
-        // 2. Delete Images from Storage (Best effort)
-        try {
-            const storageRef = ref(storage, `products/${id}`);
-            // Note: In Firebase Storage, to delete a "folder", you must list files first. 
-            // For simplicity here we just delete the document. To fully delete storage, you need a Cloud Function or listAll.
-        } catch(e) { console.warn("Could not delete storage files:", e); }
-
         showToast('Product deleted!', 'success');
         loadAllProducts();
         loadDashboardStats();
@@ -472,7 +438,6 @@ const createOrderRow = (o) => {
         if(s === 'cancelled') statusClass = 'status-cancelled';
     }
 
-    // Create status dropdown options
     const statuses = ['Pending', 'Confirmed', 'Packed', 'Shipped', 'Delivered', 'Cancelled'];
     const optionsHtml = statuses.map(s => `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s}</option>`).join('');
 
@@ -495,8 +460,6 @@ window.updateOrderStatus = async (orderId, newStatus) => {
     try {
         await updateDoc(doc(db, "orders", orderId), { status: newStatus });
         showToast(`Order status updated to ${newStatus}`, 'success');
-        // No need to reload, onSnapshot on user end handles realtime.
-        // We just refresh admin table to sync UI
         loadAllOrders(); 
     } catch (error) {
         showToast('Failed to update status.', 'error');
