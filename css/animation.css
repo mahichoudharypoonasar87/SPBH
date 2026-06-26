@@ -1,0 +1,103 @@
+/**
+ * =====================================================
+ * Shree Panchmukhi Balaji Handloom - Animations
+ * =====================================================
+ * File: /css/animation.css
+ * Description: Keyframes for 3D effects, skeleton loading,
+ * slide-ins, and general micro-interactions.
+ * ===================================================== */
+
+/* Float Animation for Hero Background */
+@keyframes float {
+    0% { transform: translateY(-50%) translateX(0); }
+    50% { transform: translateY(-55%) translateX(20px); }
+    100% { transform: translateY(-50%) translateX(0); }
+}
+
+/* Skeleton Loading Shimmer */
+@keyframes skeleton-loading {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Slide In from Right (Toast/Modals) */
+@keyframes slideInRight {
+    0% { transform: translateX(120%); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+}
+
+/* Fade Out (Toast) */
+@keyframes fadeOut {
+    0% { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(100%); }
+}
+
+/* Fade In Up (General Elements) */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Scale In (Popups) */
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Pulse for Cart Badge */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+}
+
+/* Spin for Loaders */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Utility Animation Classes */
+.animate-fadeInUp {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-scaleIn {
+    animation: scaleIn 0.4s ease-out forwards;
+}
+
+.animate-pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Staggered animation delays for grid items */
+.product-card:nth-child(1) { animation-delay: 0.1s; }
+.product-card:nth-child(2) { animation-delay: 0.2s; }
+.product-card:nth-child(3) { animation-delay: 0.3s; }
+.product-card:nth-child(4) { animation-delay: 0.4s; }
+.product-card:nth-child(5) { animation-delay: 0.5s; }
+.product-card:nth-child(6) { animation-delay: 0.6s; }
+.product-card:nth-child(7) { animation-delay: 0.7s; }
+.product-card:nth-child(8) { animation-delay: 0.8s; }
+
+/* 3D Tilt Perspective Container (used via JS) */
+.tilt-container {
+    transform-style: preserve-3d;
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1);
+    transition: transform 0.5s cubic-bezier(0.03, 0.98, 0.52, 0.99);
+}
+
+.tilt-container .tilt-inner {
+    transform: translateZ(40px);
+}

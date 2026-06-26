@@ -1,0 +1,39 @@
+/
+├── index.html
+├── login.html
+├── signup.html
+├── profile.html
+├── cart.html
+├── product.html
+├── orders.html
+├── admin.html
+├── manifest.json
+├── sw.js
+├── README.md
+│
+├── /css
+│   ├── style.css
+│   ├── responsive.css
+│   ├── animation.css
+│   └── admin.css
+│
+├── /js
+│   ├── firebase.js
+│   ├── auth.js
+│   ├── app.js
+│   ├── cart.js
+│   ├── products.js
+│   ├── product.js
+│   ├── admin.js
+│   ├── checkout.js
+│   ├── order.js
+│   ├── profile.js
+│   └── utils.js
+│
+├── /assets
+│   ├── /images
+│   └── /icons
+│
+└── /firebase
+    ├── firestore.rules
+    └── storage.rules

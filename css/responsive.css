@@ -1,0 +1,206 @@
+/**
+ * =====================================================
+ * Shree Panchmukhi Balaji Handloom - Responsive Styles
+ * =====================================================
+ * File: /css/responsive.css
+ * Description: Media queries for Tablet, Mobile, and 
+ * specific component adjustments for smaller screens.
+ * =====================================================
+ */
+
+/* ------------------------- */
+/* 1. Large Tablets / Small Desktops */
+/* ------------------------- */
+@media (max-width: 1024px) {
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+    }
+
+    .hero-visual {
+        width: 400px;
+        height: 400px;
+        right: -50px;
+    }
+
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ------------------------- */
+/* 2. Tablets               */
+/* ------------------------- */
+@media (max-width: 768px) {
+    .section-padding {
+        padding: 60px 0;
+    }
+
+    .section-header h2 {
+        font-size: 2.2rem;
+    }
+
+    /* Mobile Navigation */
+    .menu-toggle {
+        display: flex;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 300px;
+        height: 100vh;
+        background: var(--bg-primary);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 24px;
+        box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+        transition: right var(--transition-smooth);
+        z-index: 1000;
+    }
+
+    .nav-links.active {
+        right: 0;
+    }
+
+    .nav-links a {
+        font-size: 1.2rem;
+    }
+
+    /* Hero Section */
+    .hero {
+        text-align: center;
+        padding-top: 120px;
+    }
+
+    .hero-content {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .hero-title {
+        font-size: 2.8rem;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .hero-visual {
+        display: none; /* Hide complex visual on mobile for performance */
+    }
+
+    /* Products */
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .product-img-container {
+        height: 240px;
+    }
+
+    .product-actions-overlay {
+        transform: translateY(0); /* Keep actions visible on mobile */
+        background: transparent;
+        position: absolute;
+        bottom: 10px;
+    }
+
+    .product-wishlist {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Footer */
+    .footer-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .footer-socials {
+        justify-content: center;
+    }
+
+    /* Auth */
+    .auth-card {
+        padding: 32px 24px;
+    }
+}
+
+/* ------------------------- */
+/* 3. Mobile Phones         */
+/* ------------------------- */
+@media (max-width: 480px) {
+    .container {
+        padding: 0 16px;
+    }
+
+    .section-header h2 {
+        font-size: 1.8rem;
+    }
+
+    .hero-title {
+        font-size: 2.2rem;
+    }
+
+    .hero-desc {
+        font-size: 1rem;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        font-size: 0.85rem;
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .product-img-container {
+        height: 180px;
+    }
+
+    .product-info {
+        padding: 12px;
+    }
+
+    .product-name {
+        font-size: 0.9rem;
+    }
+
+    .current-price {
+        font-size: 1.1rem;
+    }
+
+    .original-price {
+        font-size: 0.8rem;
+    }
+
+    .discount-badge {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+    }
+
+    .cart-sidebar {
+        width: 100%;
+    }
+
+    .toast-container {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+    }
+
+    .toast {
+        min-width: auto;
+        width: 100%;
+    }
+}
