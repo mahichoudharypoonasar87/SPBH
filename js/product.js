@@ -1,15 +1,21 @@
 import { getProductById, getRelatedProducts } from './products.js';
 import { calculateDiscount, formatCurrency, showToast } from './utils.js';
 
-console.log("PRODUCT.JS: Step 1 - File load ho gayi!");
+// Premium Placeholder Image (Inline SVG so it loads instantly without external links)
+const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='800' viewBox='0 0 600 800'%3E%3Crect width='600' height='800' fill='%23f5f5f5'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Inter, sans-serif' font-size='24' fill='%23999'%3ENo Image%3C/text%3E%3C/svg%3E";
+
+// Helper function to safely get image
+const getImg = (images) => (images && images.length > 0) ? images[0] : PLACEHOLDER_IMG;
 
 const createProductCard = (product) => {
     const discount = calculateDiscount(product.mrp, product.sellingPrice);
     const isOutOfStock = product.stock <= 0;
+    const mainImg = getImg(product.images); // Safe image fetch
+    
     return `
         <div class="product-card tilt-element" data-id="${product.id}">
             <div class="product-img-container">
-                <img src="${product.images[0]}" alt="${product.name}" loading="lazy">
+                <img src="${mainImg}" alt="${product.name}" loading="lazy">
                 ${discount > 0 ? `<span class="discount-badge">${discount}% OFF</span>` : ''}
                 <button class="product-wishlist" aria-label="Add to Wishlist"><i class="far fa-heart"></i></button>
                 <div class="product-actions-overlay">
@@ -31,11 +37,7 @@ const createProductCard = (product) => {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log("PRODUCT.JS: Step 2 - DOM load ho gaya!");
-
     const productContainer = document.getElementById('productContainer');
-    console.log("PRODUCT.JS: Step 3 - productContainer mila:", productContainer);
-
     const mainImageWrapper = document.getElementById('mainImageWrapper');
     const mainImage = document.getElementById('mainImage');
     const thumbnailContainer = document.getElementById('thumbnailContainer');
@@ -60,14 +62,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const params = new URLSearchParams(window.location.search);
     const productId = params.get('id');
-    console.log("PRODUCT.JS: Step 4 - Product ID hai:", productId);
-
     if (!productId) { window.location.href = '/index.html'; return; }
 
     try {
-        console.log("PRODUCT.JS: Step 5 - Firebase se data mang rahe hain...");
         const product = await getProductById(productId);
-        console.log("PRODUCT.JS: Step 6 - Firebase se data aa gaya:", product);
         
         if (!product) {
             productContainer.innerHTML = `<div style="text-align:center;padding:100px;"><h2>Product Not Found</h2><a href="/index.html" class="btn btn-primary">Go Home</a></div>`;
@@ -121,22 +119,29 @@ document.addEventListener('DOMContentLoaded', async () => {
             sizeOptionsContainer.style.display = 'none';
         }
 
-        if (product.images && product.images.length > 0) {
-            mainImage.src = product.images[0];
-            mainImage.alt = product.name;
-            if (product.images.length > 1) {
-                thumbnailContainer.innerHTML = product.images.map((img, index) => `<div class="thumbnail ${index === 0 ? 'active' : ''}" data-index="${index}"><img src="${img}" alt="${product.name}" loading="lazy"></div>`).join('');
-                document.querySelectorAll('.thumbnail').forEach(thumb => {
-                    thumb.addEventListener('click', (e) => {
-                        const index = parseInt(e.currentTarget.dataset.index);
-                        mainImage.style.opacity = '0';
-                        setTimeout(() => { mainImage.src = currentProduct.images[index]; mainImage.style.opacity = '1'; }, 200);
-                        document.querySelectorAll('.thumbnail').forEach((t, i) => t.classList.toggle('active', i === index));
-                    });
+        // --- SAFE IMAGE LOADING ---
+        // Use placeholder if no image exists
+        mainImage.src = getImg(product.images);
+        mainImage.alt = product.name;
+        
+        if (product.images && product.images.length > 1) {
+            thumbnailContainer.innerHTML = product.images.map((img, index) => `
+                <div class="thumbnail ${index === 0 ? 'active' : ''}" data-index="${index}">
+                    <img src="${img}" alt="${product.name}" loading="lazy">
+                </div>
+            `).join('');
+            
+            document.querySelectorAll('.thumbnail').forEach(thumb => {
+                thumb.addEventListener('click', (e) => {
+                    const index = parseInt(e.currentTarget.dataset.index);
+                    mainImage.style.opacity = '0';
+                    setTimeout(() => { mainImage.src = currentProduct.images[index]; mainImage.style.opacity = '1'; }, 200);
+                    document.querySelectorAll('.thumbnail').forEach((t, i) => t.classList.toggle('active', i === index));
                 });
-            } else {
-                thumbnailContainer.style.display = 'none';
-            }
+            });
+        } else {
+            // Hide thumbnails completely if 0 or 1 image
+            thumbnailContainer.style.display = 'none';
         }
 
         mainImageWrapper.addEventListener('mousemove', (e) => {
@@ -157,8 +162,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!currentProduct) return;
             let cart = JSON.parse(localStorage.getItem('spbh_cart')) || [];
             const existingIndex = cart.findIndex(item => item.id === currentProduct.id && item.size === selectedSize);
-            if (existingIndex !== -1) { cart[existingIndex].qty += selectedQty; }
-            else { cart.push({ id: currentProduct.id, name: currentProduct.name, image: currentProduct.images[0], mrp: currentProduct.mrp, sellingPrice: currentProduct.sellingPrice, category: currentProduct.category, size: selectedSize || 'Free Size', qty: selectedQty }); }
+            
+            if (existingIndex !== -1) { 
+                cart[existingIndex].qty += selectedQty; 
+            } else { 
+                cart.push({ 
+                    id: currentProduct.id, 
+                    name: currentProduct.name, 
+                    image: getImg(currentProduct.images), // Safe image for cart
+                    mrp: currentProduct.mrp, 
+                    sellingPrice: currentProduct.sellingPrice, 
+                    category: currentProduct.category, 
+                    size: selectedSize || 'Free Size', 
+                    qty: selectedQty 
+                }); 
+            }
             localStorage.setItem('spbh_cart', JSON.stringify(cart));
             showToast('Added to cart!', 'success');
         });
@@ -182,13 +200,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     });
                     el.addEventListener('mouseleave', () => { el.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)'; });
                 });
-            } else { relatedGrid.parentElement.style.display = 'none'; }
+            } else { 
+                relatedGrid.parentElement.style.display = 'none'; 
+            }
         }
 
-        console.log("PRODUCT.JS: Step 7 - POORA PAGE SUCCESSFULLY LOAD HO GAYA!");
-
     } catch (error) {
-        console.error("PRODUCT.JS ERROR:", error);
+        console.error(error);
         showToast('Failed to load product.', 'error');
     }
 });
