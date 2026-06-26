@@ -100,7 +100,7 @@ if (checkoutForm) {
 
             // Open WhatsApp
             const encodedMessage = encodeURIComponent(message);
-            const whatsappUrl = `https://api.whatsapp.com/send?phone=$919887385287&text=${encodedMessage}`;
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=919887385287&text=${encodedMessage}`;
             
             window.open(whatsappUrl, '_blank');
 
