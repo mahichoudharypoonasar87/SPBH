@@ -14,7 +14,7 @@ import { auth, db, storage } from './firebase.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
 import { 
     collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, 
-    query, orderBy, serverTimestamp 
+    query, orderBy, serverTimestamp, runTransaction
 } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-storage.js";
 
@@ -491,14 +491,53 @@ const createOrderRow = (o) => {
         </tr>`;
 };
 
+// ⭐ UPDATED: Ab is function mein 'Confirmed' status hone par stock automatically
+// kam ho jaata hai. Firestore runTransaction use kiya hai taaki read+write
+// atomic rahe (agar ek hi product wale 2 orders simultaneously confirm hon
+// to bhi stock sahi se hi kam ho, koi race condition na aaye).
 window.updateOrderStatus = async (orderId, newStatus) => {
     try {
-        await updateDoc(doc(db, "orders", orderId), { status: newStatus });
-        showToast(`Order status updated to ${newStatus}`, 'success');
-        // No need to reload, onSnapshot on user end handles realtime.
-        // We just refresh admin table to sync UI
-        loadAllOrders(); 
+        // Cache se purana status nikal lo, taaki pata chale stock kam karna hai ya nahi
+        const order = allOrdersCache.find(o => o.id === orderId);
+        const previousStatus = order ? order.status : null;
+
+        // Stock sirf TABHI kam hoga jab:
+        // 1. Naya status 'Confirmed' hai, AND
+        // 2. Order pehle se 'Confirmed' nahi tha (dropdown dobara same
+        //    value pe set karne se stock dobara kam nahi hoga)
+        const shouldDecrementStock = newStatus === 'Confirmed' && previousStatus !== 'Confirmed';
+
+        if (shouldDecrementStock && order && order.items && order.items.length > 0) {
+            await runTransaction(db, async (transaction) => {
+                // Pehle saare product docs read karo
+                const productRefs = order.items.map(item => doc(db, "products", item.id));
+                const productSnaps = await Promise.all(productRefs.map(ref => transaction.get(ref)));
+
+                // Ab har product ka naya stock calculate karo aur update karo
+                productSnaps.forEach((snap, index) => {
+                    if (!snap.exists()) return; // Product delete ho gaya ho shayad
+                    const item = order.items[index];
+                    const currentStock = snap.data().stock || 0;
+                    const newStock = Math.max(0, currentStock - item.qty); // Negative se bachao
+                    transaction.update(productRefs[index], { stock: newStock });
+                });
+
+                // Order status bhi isi transaction mein update kar do
+                transaction.update(doc(db, "orders", orderId), { status: newStatus });
+            });
+
+            showToast(`Order confirmed! Stock updated for ${order.items.length} item(s).`, 'success');
+        } else {
+            // Normal status update (Confirmed se kisi aur status pe, ya
+            // dobara Confirmed select karna) - stock se kuch lena dena nahi
+            await updateDoc(doc(db, "orders", orderId), { status: newStatus });
+            showToast(`Order status updated to ${newStatus}`, 'success');
+        }
+
+        loadAllOrders();
+        loadAllProducts(); // Stock change product table mein bhi reflect ho jaaye
     } catch (error) {
+        console.error("Error updating order status:", error);
         showToast('Failed to update status.', 'error');
     }
 };
