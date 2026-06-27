@@ -17,6 +17,9 @@ import { collection, getDocs, query, where, limit, orderBy } from "https://www.g
 // Utility Imports
 import { calculateDiscount, formatCurrency, generateSkeletons, debounce, showToast } from './utils.js';
 
+// Product Services (for category filtering)
+import { getProductsByCategory } from './products.js';
+
 // ------------------------- //
 // 1. DOM Elements           //
 // ------------------------- //
@@ -43,6 +46,13 @@ const cartFooter = document.getElementById('cartFooter');
 const latestGrid = document.getElementById('latestProductsGrid');
 const featuredGrid = document.getElementById('featuredProductsGrid');
 const trendingWrapper = document.getElementById('trendingProductsWrapper');
+
+// Category Results Elements
+const categoryCards = document.querySelectorAll('.category-card');
+const categoryResultsSection = document.getElementById('category-results');
+const categoryResultsGrid = document.getElementById('categoryResultsGrid');
+const categoryResultsTitle = document.getElementById('categoryResultsTitle');
+const closeCategoryResults = document.getElementById('closeCategoryResults');
 
 // ------------------------- //
 // 2. Theme Management       //
@@ -235,6 +245,62 @@ const loadHomePage = () => {
     // Trending (Random 10 or based on a specific tag)
     fetchAndRenderProducts(trendingWrapper, [limit(10)]);
 };
+
+// ------------------------- //
+// 7b. Category Filtering    //
+// ------------------------- //
+// ⭐ NEW: Category cards (Sarees, Suits, Lehengas, Bedsheets) ab click karne
+// par us category ke products fetch karke "Category Results" section mein
+// dikhate hain, aur usi section tak smooth scroll kar dete hain.
+const loadCategoryProducts = async (categoryName) => {
+    // Section ko visible karo aur title set karo
+    categoryResultsSection.style.display = 'block';
+    categoryResultsTitle.innerText = categoryName;
+
+    // Smooth scroll us section tak (header ki height ke liye thoda offset)
+    setTimeout(() => {
+        const headerOffset = 90;
+        const sectionTop = categoryResultsSection.getBoundingClientRect().top + window.scrollY - headerOffset;
+        window.scrollTo({ top: sectionTop, behavior: 'smooth' });
+    }, 50);
+
+    // Skeleton loaders dikhao jab tak data aata hai
+    categoryResultsGrid.innerHTML = generateSkeletons(4);
+
+    try {
+        const products = await getProductsByCategory(categoryName, 12);
+
+        if (products.length === 0) {
+            categoryResultsGrid.innerHTML = `
+                <p style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding:40px 0;">
+                    "${categoryName}" mein abhi koi product available nahi hai.
+                </p>`;
+            return;
+        }
+
+        categoryResultsGrid.innerHTML = products.map(createProductCard).join('');
+        init3DTilt();
+
+    } catch (error) {
+        console.error("Error fetching category products:", error);
+        categoryResultsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#FF3B30;">Error loading products. Please try again later.</p>';
+    }
+};
+
+categoryCards.forEach(card => {
+    card.addEventListener('click', (e) => {
+        e.preventDefault(); // href="#" ki wajah se page top pe jump hone se roko
+        const category = card.dataset.category;
+        if (category) loadCategoryProducts(category);
+    });
+});
+
+if (closeCategoryResults) {
+    closeCategoryResults.addEventListener('click', () => {
+        categoryResultsSection.style.display = 'none';
+        categoryResultsGrid.innerHTML = '';
+    });
+}
 
 // ------------------------- //
 // 8. 3D Tilt Effect Logic   //
