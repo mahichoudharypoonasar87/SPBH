@@ -8,11 +8,9 @@ import { formatCurrency, calculateDiscount, showToast } from './utils.js';
 
 const cartPageContainer = document.getElementById('cartPageContainer');
 const cartItemsGrid = document.getElementById('cartItemsGrid');
-const cartSummaryCard = document.getElementById('cartSummaryCard');
 const totalMrpEl = document.getElementById('totalMrp');
 const totalDiscountEl = document.getElementById('totalDiscount');
 const grandTotalEl = document.getElementById('grandTotal');
-const checkoutBtn = document.getElementById('checkoutBtn');
 const emptyCartPage = document.getElementById('emptyCartPage');
 
 const getCart = () => JSON.parse(localStorage.getItem('spbh_cart')) || [];
@@ -98,14 +96,11 @@ window.removeCartItem = (id) => {
     showToast('Item removed successfully', 'error');
 };
 
-if (checkoutBtn) {
-    checkoutBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const cart = getCart();
-        if (cart.length === 0) return showToast('Your cart is empty!', 'error');
-        // Scrolling to summary
-        cartSummaryCard.scrollIntoView({ behavior: 'smooth' });
-    });
-}
+// NOTE: The checkout button's click handling was intentionally removed from here.
+// The button is type="submit" inside #checkoutForm, and checkout.js already
+// listens for the form's "submit" event to validate fields, build the WhatsApp
+// message, and redirect. Having a second click listener here that called
+// e.preventDefault() was blocking that submit event from ever firing — that
+// was the bug causing the WhatsApp button to do nothing.
 
 document.addEventListener('DOMContentLoaded', renderCart);
