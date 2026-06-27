@@ -5,7 +5,6 @@
  */
 
 import { auth, db } from './firebase.js';
-// addDoc hata kar setDoc aur doc import kiya, taaki hum khud ID de sakein
 import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { formatCurrency, showToast } from './utils.js';
 
@@ -15,8 +14,8 @@ const SHOP_WHATSAPP_NUMBER = '919876543210';
 const checkoutForm = document.getElementById('checkoutForm');
 
 if (checkoutForm) {
-    checkoutForm.addEventListener('submit', (e) => {
-        // 1. FORM VALIDATION
+    // Async function use kar rahe hain taaki pehle Firebase save ho, phir WhatsApp khule
+    checkoutForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const customerName = document.getElementById('custName').value.trim();
@@ -25,6 +24,7 @@ if (checkoutForm) {
         const customerPincode = document.getElementById('custPincode').value.trim();
         const cart = JSON.parse(localStorage.getItem('spbh_cart')) || [];
 
+        // Validations
         if (!customerName || !customerMobile || !customerAddress || !customerPincode) {
             return showToast('Please fill in all details.', 'error');
         }
@@ -38,7 +38,11 @@ if (checkoutForm) {
             return showToast('Your cart is empty!', 'error');
         }
 
-        // 2. CALCULATE TOTALS
+        // UI Update: Button disable karo
+        const submitBtn = checkoutForm.querySelector('.whatsapp-checkout-btn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving Order...';
+
         let grandTotal = 0;
         const itemsArray = cart.map(item => {
             const itemTotal = item.sellingPrice * item.qty;
@@ -50,10 +54,36 @@ if (checkoutForm) {
             };
         });
 
-        // 3. GENERATE CUSTOM ORDER ID (Jo WhatsApp aur Firebase DONO mein same rahega)
+        // Generate Exact Custom Order ID (Jo WhatsApp aur Firebase DONO mein rahega)
         const customOrderId = Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase();
 
-        // 4. FORMAT WHATSAPP MESSAGE (USI CUSTOM ID KE SAATH)
+        // -----------------------------
+        // STEP 1: FIREBASE ME SAVE KARO
+        // -----------------------------
+        try {
+            if (auth.currentUser) {
+                // Agar user logged in hai, toh Firebase mein save karo
+                await setDoc(doc(db, "orders", customOrderId), {
+                    userId: auth.currentUser.uid,
+                    customerName, customerMobile, customerAddress, customerPincode,
+                    items: itemsArray,
+                    grandTotal: grandTotal,
+                    status: 'Pending',
+                    createdAt: serverTimestamp()
+                });
+                console.log("Order saved to Firebase with ID: ", customOrderId);
+            } else {
+                // Agar guest hai, toh bata do ki track nahi hoga, lekin process roko mat
+                console.log("Guest user, skipping Firebase save.");
+            }
+        } catch (error) {
+            console.error("Firebase save error:", error);
+            // Agar Firebase mein error aaye, toh process rukna nahi hai, WhatsApp toh bhejna hai
+        }
+
+        // -----------------------------
+        // STEP 2: WHATSAPP KHULO
+        // -----------------------------
         let itemStr = "";
         itemsArray.forEach((item, index) => {
             itemStr += `\n${index + 1}. *${item.name}* (Size: ${item.size})\n   Qty: ${item.qty} | Price: ${formatCurrency(item.totalPrice)}\n`;
@@ -70,34 +100,15 @@ if (checkoutForm) {
                         `📌 *Order ID: #${customOrderId}*\n\n` +
                         `Thank you!`;
 
-        // 5. OPEN WHATSAPP IMMEDIATELY (Bina kisi delay ke)
         const encodedMessage = encodeURIComponent(message);
         const whatsappUrl = `https://api.whatsapp.com/send?phone=${SHOP_WHATSAPP_NUMBER}&text=${encodedMessage}`;
+        
+        // Final Redirect to WhatsApp
         window.location.href = whatsappUrl;
 
-        // 6. BACKGROUND FIREBASE SAVE (USI CUSTOM ID KE NAAM SE)
-        // setDoc use karne se Firebase wahi ID use karega jo humne banayi hai
-        const saveOrderToFirebase = async () => {
-            try {
-                if (auth.currentUser) {
-                    await setDoc(doc(db, "orders", customOrderId), {
-                        userId: auth.currentUser.uid,
-                        customerName, customerMobile, customerAddress, customerPincode,
-                        items: itemsArray,
-                        grandTotal: grandTotal,
-                        status: 'Pending',
-                        createdAt: serverTimestamp()
-                    });
-                }
-            } catch (error) {
-                console.error("Firebase save failed (User might be guest):", error);
-            }
-            // Cart Clear
-            localStorage.removeItem('spbh_cart');
-        };
-
-        // Trigger background save
-        saveOrderToFirebase();
-
+        // -----------------------------
+        // STEP 3: CART CLEAR (Background)
+        // -----------------------------
+        localStorage.removeItem('spbh_cart');
     });
 }
