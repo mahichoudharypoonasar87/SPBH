@@ -114,9 +114,15 @@ const setupEventListeners = () => {
     // Tab Navigation
     menuLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            e.preventDefault();
             const targetId = link.getAttribute('data-section');
-            
+
+            // "View Store" aur "Logout" jaise links ke paas data-section nahi
+            // hota — unke default behavior (naya tab khulna / logout) ko
+            // chhed nahi karna, sirf section-tabs ke liye preventDefault karo.
+            if (!targetId) return;
+
+            e.preventDefault();
+
             // Update Active Link
             menuLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
@@ -167,7 +173,13 @@ const loadDashboardStats = async () => {
         // Orders Count & Revenue
         const ordSnap = await getDocs(collection(db, "orders"));
         let revenue = 0;
-        ordSnap.forEach(doc => revenue += (doc.data().grandTotal || 0));
+        ordSnap.forEach(doc => {
+            const data = doc.data();
+            // Cancelled orders ka amount Revenue mein count nahi hona chahiye
+            if (data.status !== 'Cancelled') {
+                revenue += (data.grandTotal || 0);
+            }
+        });
         if(totalOrdersEl) totalOrdersEl.innerText = ordSnap.size;
         if(totalRevenueEl) totalRevenueEl.innerText = formatCurrency(revenue);
 
@@ -536,6 +548,7 @@ window.updateOrderStatus = async (orderId, newStatus) => {
 
         loadAllOrders();
         loadAllProducts(); // Stock change product table mein bhi reflect ho jaaye
+        loadDashboardStats(); // Revenue bhi turant update ho (cancel hone par kam ho)
     } catch (error) {
         console.error("Error updating order status:", error);
         showToast('Failed to update status.', 'error');
