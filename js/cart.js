@@ -4,7 +4,10 @@
  * =====================================================
  */
 
+import { auth } from './firebase.js';
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
 import { formatCurrency, calculateDiscount, showToast } from './utils.js';
+import { placeOrder } from './checkout.js';
 
 const cartPageContainer = document.getElementById('cartPageContainer');
 const cartItemsGrid = document.getElementById('cartItemsGrid');
@@ -96,11 +99,41 @@ window.removeCartItem = (id) => {
     showToast('Item removed successfully', 'error');
 };
 
-// NOTE: The checkout button's click handling was intentionally removed from here.
-// The button is type="submit" inside #checkoutForm, and checkout.js already
-// listens for the form's "submit" event to validate fields, build the WhatsApp
-// message, and redirect. Having a second click listener here that called
-// e.preventDefault() was blocking that submit event from ever firing — that
-// was the bug causing the WhatsApp button to do nothing.
+// NOTE: checkoutBtn ka click listener yahan se intentionally hata diya gaya hai.
+// Button type="submit" hai #checkoutForm ke andar, aur checkout.js form ka
+// "submit" event already sunta hai. Yahan dobara click listener lagane se
+// e.preventDefault() ki wajah se submit event kabhi fire nahi hota tha —
+// yahi original WhatsApp-button-not-working wala bug tha.
 
 document.addEventListener('DOMContentLoaded', renderCart);
+
+// -----------------------------------------------------
+// AUTO-RESUME CHECKOUT: Login ke baad wapas cart.html pe
+// aane par, agar pending order data mile aur user ab
+// logged in hai, to automatically order place kar do —
+// user ko form dobara bharne ki zaroorat nahi padegi.
+// -----------------------------------------------------
+onAuthStateChanged(auth, (user) => {
+    if (!user) return;
+
+    const pendingRaw = localStorage.getItem('pendingCheckout');
+    if (!pendingRaw) return;
+
+    let pendingData;
+    try {
+        pendingData = JSON.parse(pendingRaw);
+    } catch (err) {
+        localStorage.removeItem('pendingCheckout');
+        return;
+    }
+
+    if (!pendingData || !pendingData.cart || pendingData.cart.length === 0) {
+        localStorage.removeItem('pendingCheckout');
+        return;
+    }
+
+    showToast('Login successful! Order place kiya ja raha hai...', 'success');
+
+    // Order place karo aur fir pendingCheckout clear ho jaayega (placeOrder ke andar)
+    placeOrder(pendingData);
+});
