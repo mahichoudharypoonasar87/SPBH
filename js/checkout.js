@@ -5,7 +5,8 @@
  */
 
 import { auth, db } from './firebase.js';
-import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+// addDoc hata kar setDoc aur doc import kiya, taaki hum khud ID de sakein
+import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { formatCurrency, showToast } from './utils.js';
 
 // ⚠️ APNA NUMBER YAHAN DALEIN
@@ -15,7 +16,7 @@ const checkoutForm = document.getElementById('checkoutForm');
 
 if (checkoutForm) {
     checkoutForm.addEventListener('submit', (e) => {
-        // 1. FORM VALIDATION (Sync - No delay)
+        // 1. FORM VALIDATION
         e.preventDefault();
 
         const customerName = document.getElementById('custName').value.trim();
@@ -37,27 +38,22 @@ if (checkoutForm) {
             return showToast('Your cart is empty!', 'error');
         }
 
-        // 2. CALCULATE TOTALS (Sync - No delay)
+        // 2. CALCULATE TOTALS
         let grandTotal = 0;
         const itemsArray = cart.map(item => {
             const itemTotal = item.sellingPrice * item.qty;
             grandTotal += itemTotal;
             return {
-                id: item.id,
-                name: item.name,
-                image: item.image,
-                size: item.size || 'Free Size',
-                mrp: item.mrp,
-                sellingPrice: item.sellingPrice,
-                qty: item.qty,
-                totalPrice: itemTotal
+                id: item.id, name: item.name, image: item.image,
+                size: item.size || 'Free Size', mrp: item.mrp,
+                sellingPrice: item.sellingPrice, qty: item.qty, totalPrice: itemTotal
             };
         });
 
-        // Generate a temporary Order ID for WhatsApp message (so we don't wait for Firebase)
-        const tempOrderId = "ORD" + Date.now().toString(36).toUpperCase();
+        // 3. GENERATE CUSTOM ORDER ID (Jo WhatsApp aur Firebase DONO mein same rahega)
+        const customOrderId = Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase();
 
-        // 3. FORMAT WHATSAPP MESSAGE (Sync - No delay)
+        // 4. FORMAT WHATSAPP MESSAGE (USI CUSTOM ID KE SAATH)
         let itemStr = "";
         itemsArray.forEach((item, index) => {
             itemStr += `\n${index + 1}. *${item.name}* (Size: ${item.size})\n   Qty: ${item.qty} | Price: ${formatCurrency(item.totalPrice)}\n`;
@@ -71,26 +67,20 @@ if (checkoutForm) {
                         `PIN Code: ${customerPincode}\n\n` +
                         `📦 *Order Items:*\n${itemStr}\n` +
                         `💰 *Grand Total: ${formatCurrency(grandTotal)}*\n` +
-                        `📌 *Order ID: #${tempOrderId}*\n\n` +
+                        `📌 *Order ID: #${customOrderId}*\n\n` +
                         `Thank you!`;
 
-        // 4. OPEN WHATSAPP IMMEDIATELY (Direct User Action - 100% Works)
-                // 4. OPEN WHATSAPP IMMEDIATELY (Direct User Action - 100% Works)
+        // 5. OPEN WHATSAPP IMMEDIATELY (Bina kisi delay ke)
         const encodedMessage = encodeURIComponent(message);
         const whatsappUrl = `https://api.whatsapp.com/send?phone=${SHOP_WHATSAPP_NUMBER}&text=${encodedMessage}`;
-        
-        
-        // Using window.location.href is the MOST bulletproof way for mobile/desktop
-        // It opens in the same tab. If you want a new tab, window.open(whatsappUrl, '_blank') can be used, but location.href never gets blocked.
         window.location.href = whatsappUrl;
 
-        // 5. BACKGROUND FIREBASE SAVE (Async - Doesn't block WhatsApp)
-        // Since we are redirecting the page, we use navigator.sendBeacon conceptually, 
-        // but for Firestore we just trigger it. Even if it fails, user already went to WhatsApp.
+        // 6. BACKGROUND FIREBASE SAVE (USI CUSTOM ID KE NAAM SE)
+        // setDoc use karne se Firebase wahi ID use karega jo humne banayi hai
         const saveOrderToFirebase = async () => {
             try {
                 if (auth.currentUser) {
-                    await addDoc(collection(db, "orders"), {
+                    await setDoc(doc(db, "orders", customOrderId), {
                         userId: auth.currentUser.uid,
                         customerName, customerMobile, customerAddress, customerPincode,
                         items: itemsArray,
@@ -100,15 +90,14 @@ if (checkoutForm) {
                     });
                 }
             } catch (error) {
-                console.error("Firebase save failed (User is guest or network error):", error);
+                console.error("Firebase save failed (User might be guest):", error);
             }
-            
-            // Clear cart after attempting save
+            // Cart Clear
             localStorage.removeItem('spbh_cart');
         };
 
         // Trigger background save
         saveOrderToFirebase();
 
-    }); // End of submit event
-                }
+    });
+}
