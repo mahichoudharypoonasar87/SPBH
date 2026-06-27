@@ -187,6 +187,15 @@ const createOrderCard = (order) => {
         });
     }
 
+    // ⭐ Cancel button sirf tab dikhega jab order abhi 'Pending' hai.
+    // Confirm/Packed/Shipped/Delivered ho jaane ke baad user khud cancel nahi
+    // kar sakta — woh dukaan se WhatsApp/phone par baat karega.
+    const cancelBtnHtml = status === 'pending'
+        ? `<button class="btn btn-sm btn-secondary cancel-order-btn" data-order-id="${order.id}" style="color:#FF3B30; border-color:#FF3B30;">
+               <i class="fas fa-times"></i> Cancel Order
+           </button>`
+        : '';
+
     return `
         <div class="order-card">
             <div class="order-card-header">
@@ -201,11 +210,42 @@ const createOrderCard = (order) => {
             </div>
             <div class="order-card-footer">
                 <span class="order-total-amount">Total: ${formatCurrency(order.grandTotal || 0)}</span>
-                <a href="/orders.html?id=${order.id}" class="btn btn-sm btn-secondary">Track Order</a>
+                <div style="display:flex; gap:8px;">
+                    ${cancelBtnHtml}
+                    <a href="/orders.html?id=${order.id}" class="btn btn-sm btn-secondary">Track Order</a>
+                </div>
             </div>
         </div>
     `;
 };
+
+// ⭐ Cancel Order: event delegation use kar rahe hain kyunki order cards
+// dynamically innerHTML se bante hain, to direct listener kaam nahi karega.
+ordersListContainer.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.cancel-order-btn');
+    if (!btn) return;
+
+    const orderId = btn.dataset.orderId;
+    if (!orderId) return;
+
+    const confirmCancel = confirm('Are you sure you want to cancel this order?');
+    if (!confirmCancel) return;
+
+    btn.disabled = true;
+    btn.innerText = 'Cancelling...';
+
+    try {
+        await updateDoc(doc(db, "orders", orderId), { status: 'Cancelled' });
+        showToast('Order cancelled successfully.', 'success');
+        // List refresh kar do taaki updated status dikhe aur button hat jaaye
+        await loadUserOrders(auth.currentUser.uid);
+    } catch (error) {
+        console.error("Error cancelling order:", error);
+        showToast('Failed to cancel order. Please try again.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-times"></i> Cancel Order';
+    }
+});
 
 if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
