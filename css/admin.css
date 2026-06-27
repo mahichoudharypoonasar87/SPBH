@@ -1,39 +1,443 @@
-/
-├── index.html
-├── login.html
-├── signup.html
-├── profile.html
-├── cart.html
-├── product.html
-├── orders.html
-├── admin.html
-├── manifest.json
-├── sw.js
-├── README.md
-│
-├── /css
-│   ├── style.css
-│   ├── responsive.css
-│   ├── animation.css
-│   └── admin.css
-│
-├── /js
-│   ├── firebase.js
-│   ├── auth.js
-│   ├── app.js
-│   ├── cart.js
-│   ├── products.js
-│   ├── product.js
-│   ├── admin.js
-│   ├── checkout.js
-│   ├── order.js
-│   ├── profile.js
-│   └── utils.js
-│
-├── /assets
-│   ├── /images
-│   └── /icons
-│
-└── /firebase
-    ├── firestore.rules
-    └── storage.rules
+/**
+ * =====================================================
+ * Shree Panchmukhi Balaji Handloom - Admin Panel Styles
+ * =====================================================
+ * File: /css/admin.css
+ * Description: Styles for the Admin Dashboard — sidebar,
+ * stat cards, product form, data tables, image upload,
+ * and order status badges. Uses the same CSS variables
+ * defined in style.css so it stays consistent with the
+ * rest of the site (light + dark theme).
+ * =====================================================
+ */
+
+/* ------------------------- */
+/* 1. Layout Shell           */
+/* ------------------------- */
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background: var(--bg-secondary);
+}
+
+/* ------------------------- */
+/* 2. Sidebar                */
+/* ------------------------- */
+.admin-sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border-color);
+    padding: 28px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    transition: transform var(--transition-smooth);
+    z-index: 100;
+}
+
+.admin-logo {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 28px 28px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.admin-logo i { color: var(--primary); }
+
+.admin-menu li { margin-bottom: 4px; }
+
+.admin-menu a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 28px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-left: 3px solid transparent;
+    transition: all var(--transition-fast);
+}
+
+.admin-menu a i { width: 18px; text-align: center; font-size: 1rem; }
+
+.admin-menu a:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.admin-menu a.active {
+    background: rgba(212, 175, 55, 0.08);
+    color: var(--primary);
+    border-left-color: var(--primary);
+    font-weight: 600;
+}
+
+.admin-menu a.logout { color: #FF3B30; margin-top: 16px; }
+.admin-menu a.logout:hover { background: rgba(255, 59, 48, 0.08); }
+
+/* ------------------------- */
+/* 3. Main Content           */
+/* ------------------------- */
+.admin-main {
+    flex-grow: 1;
+    min-width: 0;
+    padding: 32px 40px 60px;
+}
+
+.admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+}
+
+.admin-header h1 {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.mobile-menu-toggle {
+    display: none;
+    font-size: 1.3rem;
+    color: var(--text-primary);
+}
+
+.admin-header .theme-toggle {
+    color: var(--text-primary);
+    transition: color var(--transition-fast);
+}
+.admin-header .theme-toggle:hover { color: var(--primary); }
+
+/* ------------------------- */
+/* 4. Admin Sections         */
+/* ------------------------- */
+.admin-section { animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ------------------------- */
+/* 5. Dashboard Stat Cards   */
+/* ------------------------- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 28px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
+}
+
+.stat-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+}
+
+.stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.stat-icon.blue   { background: rgba(58, 134, 255, 0.12); color: #3A86FF; }
+.stat-icon.green  { background: rgba(52, 199, 89, 0.12);  color: #34C759; }
+.stat-icon.orange { background: rgba(255, 149, 0, 0.12);  color: #FF9500; }
+.stat-icon.purple { background: rgba(175, 82, 222, 0.12); color: #AF52DE; }
+
+.stat-info h3 {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-number {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* ------------------------- */
+/* 6. Admin Card (Generic)   */
+/* ------------------------- */
+.admin-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.admin-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-card-header h2 {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* ------------------------- */
+/* 7. Product Form           */
+/* ------------------------- */
+.admin-form-container { padding: 28px; }
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 24px;
+}
+
+.form-grid .full-width { grid-column: 1 / -1; }
+
+/* admin-specific tweak: form-control already styled in style.css,
+   but admin form groups sit in a grid so margin-bottom isn't needed */
+.form-grid .form-group { margin-bottom: 0; }
+
+/* Toggle Switch (Featured product) */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 26px;
+    transition: var(--transition-fast);
+}
+.toggle-slider::before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--text-muted);
+    border-radius: 50%;
+    transition: var(--transition-fast);
+}
+.toggle-switch input:checked + .toggle-slider { background-color: var(--primary); border-color: var(--primary); }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(22px); background-color: #000; }
+
+/* Image Dropzone */
+.image-dropzone {
+    border: 2px dashed var(--border-color);
+    border-radius: 16px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    background: var(--bg-secondary);
+}
+.image-dropzone:hover, .image-dropzone.dragover {
+    border-color: var(--primary);
+    background: rgba(212, 175, 55, 0.05);
+}
+.image-dropzone i {
+    font-size: 2.2rem;
+    color: var(--primary);
+    margin-bottom: 12px;
+    display: block;
+}
+.image-dropzone p { color: var(--text-secondary); font-size: 0.9rem; }
+.image-dropzone p span { color: var(--primary); font-weight: 600; text-decoration: underline; }
+
+.image-previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+}
+.preview-item {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+.preview-item img { width: 100%; height: 100%; object-fit: cover; }
+.remove-preview {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    transition: background var(--transition-fast);
+}
+.remove-preview:hover { background: #FF3B30; }
+
+/* ------------------------- */
+/* 8. Data Tables            */
+/* ------------------------- */
+.table-responsive { overflow-x: auto; }
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 720px;
+}
+
+.data-table thead th {
+    text-align: left;
+    padding: 16px 28px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.data-table tbody td {
+    padding: 16px 28px;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.data-table tbody tr:hover { background: var(--bg-secondary); }
+.data-table tbody tr:last-child td { border-bottom: none; }
+
+.table-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: var(--bg-secondary);
+}
+
+/* Action Buttons (Edit / Delete) */
+.action-btns { display: flex; gap: 8px; }
+.action-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    transition: all var(--transition-fast);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+.action-btn.edit:hover { background: var(--primary); color: #000; }
+.action-btn.delete:hover { background: #FF3B30; color: #fff; }
+
+/* Order status dropdown (inline in table) */
+.status-select {
+    border: 1px solid var(--border-color) !important;
+    border-radius: 10px;
+    cursor: pointer;
+    background: var(--bg-secondary) !important;
+}
+.status-select:focus { border-color: var(--primary) !important; }
+
+/* ------------------------- */
+/* 9. Status Badges          */
+/* ------------------------- */
+.status-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.status-pending   { background: rgba(255, 149, 0, 0.12); color: #FF9500; }
+.status-confirmed  { background: rgba(58, 134, 255, 0.12); color: #3A86FF; }
+.status-shipped    { background: rgba(175, 82, 222, 0.12); color: #AF52DE; }
+.status-delivered  { background: rgba(52, 199, 89, 0.12); color: #34C759; }
+.status-cancelled  { background: rgba(255, 59, 48, 0.12); color: #FF3B30; }
+
+/* ------------------------- */
+/* 10. Order Search Input    */
+/* ------------------------- */
+.admin-card-header .form-control {
+    padding: 12px 16px 12px 36px;
+}
+
+/* ------------------------- */
+/* 11. Responsive            */
+/* ------------------------- */
+@media (max-width: 1024px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .form-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+    .admin-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        transform: translateX(-100%);
+        box-shadow: var(--shadow-lg);
+    }
+    .admin-sidebar.active { transform: translateX(0); }
+    .mobile-menu-toggle { display: block; }
+    .admin-main { padding: 24px 20px 60px; }
+}
+
+@media (max-width: 600px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .admin-card-header { flex-direction: column; align-items: flex-start; }
+    .admin-card-header input.form-control { width: 100%; }
+    .data-table thead th, .data-table tbody td { padding: 12px 16px; }
+    }
+    
