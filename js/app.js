@@ -257,15 +257,18 @@ const loadCategoryProducts = async (categoryName) => {
     categoryResultsSection.style.display = 'block';
     categoryResultsTitle.innerText = categoryName;
 
-    // Smooth scroll us section tak (header ki height ke liye thoda offset)
-    setTimeout(() => {
+    // Skeleton loaders dikhao jab tak data aata hai
+    categoryResultsGrid.innerHTML = generateSkeletons(4);
+
+    // ⭐ FIX: Scroll sirf TABHI karo jab section ka content (skeletons) already
+    // render ho chuka ho — taaki section ki actual height pata ho aur scroll
+    // sahi jagah pe jaaye. Pehle ye turant call ho raha tha jab section khaali
+    // tha, isliye scroll position galat/0 aa jaati thi.
+    requestAnimationFrame(() => {
         const headerOffset = 90;
         const sectionTop = categoryResultsSection.getBoundingClientRect().top + window.scrollY - headerOffset;
         window.scrollTo({ top: sectionTop, behavior: 'smooth' });
-    }, 50);
-
-    // Skeleton loaders dikhao jab tak data aata hai
-    categoryResultsGrid.innerHTML = generateSkeletons(4);
+    });
 
     try {
         const products = await getProductsByCategory(categoryName, 12);
@@ -439,3 +442,4 @@ document.addEventListener('DOMContentLoaded', () => {
     loadHomePage();
     renderMiniCart(); // Sync cart count on page load
 });
+            
